@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/api/',
     },
-    sitemap: 'http://159.203.110.79:3000/sitemap.xml',
+    sitemap: 'https://movies.unittap.com/sitemap.xml',
   };
 }

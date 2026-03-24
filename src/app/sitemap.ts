@@ -3,7 +3,7 @@ import { getMediaData } from '@/lib/tmdb';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { movies, shows, upcoming } = await getMediaData();
-  const baseUrl = 'http://159.203.110.79:3000';
+  const baseUrl = 'https://movies.unittap.com';
 
   const movieUrls = [...movies, ...upcoming].map((m) => ({
     url: `${baseUrl}/movie/${m.id}`,
