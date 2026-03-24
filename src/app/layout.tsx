@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://movies.unittap.com"),
   title: {
     default: "MovieRec",
     template: "%s | MovieRec",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "MovieRec",
     images: [
       {
-        url: "/og-logo.png", // This will now point to your brand logo
+        url: "https://placehold.jp/120/2563eb/ffffff/1200x630.png?text=MOVIEREC",
         width: 1200,
         height: 630,
         alt: "MovieRec Logo",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MovieRec",
     description: "The ultimate movie and show discovery engine.",
-    images: ["/og-logo.png"],
+    images: ["https://placehold.jp/120/2563eb/ffffff/1200x630.png?text=MOVIEREC"],
   },
 };
 
