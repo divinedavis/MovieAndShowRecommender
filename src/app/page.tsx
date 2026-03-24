@@ -5,7 +5,7 @@ import { getMediaData, MediaItem } from '@/lib/tmdb';
 function MediaCard({ item }: { item: MediaItem }) {
   return (
     <Link href={`/${item.type}/${item.id}`} className="block bg-white rounded-2xl overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
-      <div className="relative h-80 w-full border-b-4 border-black">
+      <div className="relative h-64 md:h-80 w-full border-b-4 border-black">
         <Image
           src={item.image}
           alt={`Poster for ${item.title}`}
@@ -13,7 +13,7 @@ function MediaCard({ item }: { item: MediaItem }) {
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute top-3 right-3 bg-yellow-400 border-2 border-black text-black font-black text-xs px-2 py-1 italic">
+        <div className="absolute top-3 right-3 bg-yellow-400 border-2 border-black text-black font-black text-[10px] md:text-xs px-2 py-1 italic">
           {item.rating} IMDB
         </div>
         {item.isWinner && (
@@ -22,15 +22,15 @@ function MediaCard({ item }: { item: MediaItem }) {
           </div>
         )}
       </div>
-      <div className="p-5">
-        <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-3 h-14 overflow-hidden group-hover:text-blue-600 transition-colors">
+      <div className="p-4 md:p-5">
+        <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter leading-none mb-3 h-12 md:h-14 overflow-hidden group-hover:text-blue-600 transition-colors break-words">
           {item.title}
         </h3>
         <div className="flex items-center gap-2 mb-4">
-            <span className="bg-gray-100 border border-black px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">{item.year}</span>
-            <span className="bg-gray-100 border border-black px-2 py-0.5 text-[10px] font-black uppercase tracking-widest">{item.type === 'movie' ? 'MOVIE' : 'SERIES'}</span>
+            <span className="bg-gray-100 border border-black px-2 py-0.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest">{item.year}</span>
+            <span className="bg-gray-100 border border-black px-2 py-0.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest">{item.type === 'movie' ? 'MOVIE' : 'SERIES'}</span>
         </div>
-        <p className="text-gray-700 text-xs font-bold leading-relaxed line-clamp-2 h-10">{item.description}</p>
+        <p className="text-gray-700 text-[10px] md:text-xs font-bold leading-relaxed line-clamp-2 h-8 md:h-10">{item.description}</p>
       </div>
     </Link>
   );
@@ -39,20 +39,20 @@ function MediaCard({ item }: { item: MediaItem }) {
 function Section({ title, items, id, subtitle, link }: { title: string, subtitle?: string, items: MediaItem[], id?: string, link?: string }) {
   if (items.length === 0) return null;
   return (
-    <section className="mb-24" id={id}>
-      <div className="flex flex-col mb-12">
+    <section className="mb-16 md:mb-24" id={id}>
+      <div className="flex flex-col mb-8 md:mb-12">
         {link ? (
           <Link href={link} className="group inline-block">
-            <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors">{title}</h2>
-            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-sm md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL</span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors leading-tight">{title}</h2>
+            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-xs md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL</span>
           </Link>
         ) : (
-          <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block">{title}</h2>
+          <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-black uppercase italic inline-block leading-tight">{title}</h2>
         )}
-        {subtitle && <p className="text-blue-600 font-black uppercase tracking-widest text-xs mt-2 italic underline decoration-4">{subtitle}</p>}
-        <div className="w-full h-2 bg-black mt-6"></div>
+        {subtitle && <p className="text-blue-600 font-black uppercase tracking-widest text-[10px] md:text-xs mt-2 italic underline decoration-2 md:decoration-4">{subtitle}</p>}
+        <div className="w-full h-1.5 md:h-2 bg-black mt-4 md:mt-6"></div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12">
         {items.map((item) => (
           <MediaCard key={item.id} item={item} />
         ))}
@@ -65,29 +65,28 @@ export default async function Home() {
   const { movies, shows, top2025, top2026Month, oscars, bra, currentMonthName } = await getMediaData();
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black">
-      <header className="bg-white border-b-4 border-black sticky top-0 z-50 shadow-md py-6">
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="bg-blue-600 border-4 border-black text-white px-4 py-1 font-black text-2xl italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
-            <div className="hidden md:block">
-              <Link href="/compare" className="bg-yellow-400 border-4 border-black text-black px-4 py-1.5 font-black text-sm uppercase italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all inline-block">
-                Compare Movies →
-              </Link>
-            </div>
-          </Link>
-          <nav className="hidden md:flex space-x-6 text-xs font-black uppercase tracking-widest">
-            <Link href="/best/netflix/03" className="hover:text-red-600">Netflix Top</Link>
-            <Link href="/best/max/03" className="hover:text-blue-600">Max Top</Link>
-            <div className="w-px h-4 bg-gray-200 self-center"></div>
-            <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2">THE OSCARS</a>
-            <a href="#bra" className="hover:text-blue-600 transition underline decoration-2">BLACK REEL</a>
+    <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
+      <header className="bg-white border-b-4 border-black sticky top-0 z-50 shadow-md py-4 md:py-6">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <Link href="/" className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+                <div className="bg-blue-600 border-2 md:border-4 border-black text-white px-2 md:px-4 py-0.5 md:py-1 font-black text-lg md:text-2xl italic tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
+            </Link>
+            <Link href="/compare" className="bg-yellow-400 border-2 md:border-4 border-black text-black px-3 md:px-4 py-1 md:py-1.5 font-black text-[10px] md:text-sm uppercase italic tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all whitespace-nowrap">
+                Compare →
+            </Link>
+          </div>
+          <nav className="flex items-center space-x-4 md:space-x-6 text-[10px] font-black uppercase tracking-widest overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+            <Link href="/best/netflix/03" className="hover:text-red-600 whitespace-nowrap">Netflix</Link>
+            <Link href="/best/max/03" className="hover:text-blue-600 whitespace-nowrap">Max</Link>
+            <div className="flex-shrink-0 w-px h-4 bg-gray-200 hidden md:block"></div>
+            <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap">Oscars</a>
+            <a href="#bra" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap">Black Reel</a>
           </nav>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
         <Section 
           id="oscars"
           title="Best Picture Award" 
@@ -134,10 +133,10 @@ export default async function Home() {
         </div>
       </div>
 
-      <footer className="bg-gray-950 text-white py-24 mt-20 border-t-8 border-blue-600">
+      <footer className="bg-gray-950 text-white py-16 md:py-24 mt-20 border-t-8 border-blue-600">
         <div className="max-w-7xl mx-auto px-6 text-center md:text-left">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <h2 className="text-4xl font-black mb-8 md:mb-0 italic tracking-tighter">MOVIEREC.</h2>
+            <h2 className="text-3xl md:text-4xl font-black mb-8 md:mb-0 italic tracking-tighter">MOVIEREC.</h2>
           </div>
           <div className="pt-12 border-t border-gray-900 text-gray-500 text-[10px] font-black uppercase tracking-widest">
             © {new Date().getFullYear()} MOVIEREC. THE 1M MAU MISSION.
