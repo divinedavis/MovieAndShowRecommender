@@ -17,8 +17,8 @@ function MediaCard({ item }: { item: MediaItem }) {
           {item.rating} IMDB
         </div>
         {item.isWinner && (
-          <div className="absolute top-3 left-3 bg-blue-600 border-2 border-black text-white font-black text-[10px] px-2 py-1 uppercase tracking-tighter italic shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            OSCAR WINNER
+          <div className="absolute top-3 left-3 bg-blue-600 border-2 border-black text-white font-black text-[10px] px-2 py-1 uppercase tracking-tighter italic shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-bounce">
+            WINNER
           </div>
         )}
       </div>
@@ -36,12 +36,19 @@ function MediaCard({ item }: { item: MediaItem }) {
   );
 }
 
-function Section({ title, items, id, subtitle }: { title: string, subtitle?: string, items: MediaItem[], id?: string }) {
+function Section({ title, items, id, subtitle, link }: { title: string, subtitle?: string, items: MediaItem[], id?: string, link?: string }) {
   if (items.length === 0) return null;
   return (
     <section className="mb-24" id={id}>
       <div className="flex flex-col mb-12">
-        <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block">{title}</h2>
+        {link ? (
+          <Link href={link} className="group inline-block">
+            <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors">{title}</h2>
+            <span className="ml-4 text-gray-300 font-black italic uppercase text-lg group-hover:text-blue-600">+ VIEW ALL CEREMONIES</span>
+          </Link>
+        ) : (
+          <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block">{title}</h2>
+        )}
         {subtitle && <p className="text-blue-600 font-black uppercase tracking-widest text-xs mt-2 italic underline decoration-4">{subtitle}</p>}
         <div className="w-full h-2 bg-black mt-6"></div>
       </div>
@@ -55,7 +62,7 @@ function Section({ title, items, id, subtitle }: { title: string, subtitle?: str
 }
 
 export default async function Home() {
-  const { movies, shows, upcoming2025, upcoming2026, awards, awardYear } = await getMediaData();
+  const { movies, shows, upcoming2025, upcoming2026, oscars, bra } = await getMediaData();
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black">
@@ -65,13 +72,13 @@ export default async function Home() {
             <div className="bg-blue-600 border-4 border-black text-white px-4 py-1 font-black text-2xl italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
             <div className="hidden md:block">
               <h1 className="text-2xl font-black tracking-tighter leading-none uppercase">OSCARS & RECS</h1>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.1 // ${awardYear + 1} NOMINEES LIVE</p>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.2 // 2026 WINNERS LIVE</p>
             </div>
           </Link>
           <nav className="hidden md:flex space-x-8 text-xs font-black uppercase tracking-widest">
             <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2">THE OSCARS</a>
+            <a href="#bra" className="hover:text-blue-600 transition underline decoration-2">BLACK REEL</a>
             <a href="#2025" className="hover:text-blue-600 transition">2025</a>
-            <a href="#2026" className="hover:text-blue-600 transition">2026</a>
           </nav>
         </div>
       </header>
@@ -80,14 +87,23 @@ export default async function Home() {
         
         <Section 
           id="oscars"
-          title="The Best Picture Award" 
-          subtitle={`Ceremony Year: ${awardYear + 1} (Movies from ${awardYear})`}
-          items={awards} 
+          title="Best Picture Award" 
+          subtitle="Academy Awards (The Oscars) // 2026 Winners & Nominees"
+          items={oscars} 
+          link="/awards/oscars"
+        />
+
+        <Section 
+          id="bra"
+          title="The BRA Awards" 
+          subtitle="Black Reel Awards (The BRAs) // 2026 Excellence in Cinema"
+          items={bra} 
+          link="/awards/black-reel"
         />
 
         <Section 
           id="2025"
-          title="Most Anticipated 2025" 
+          title="Upcoming 2025" 
           items={upcoming2025} 
         />
 
@@ -102,19 +118,9 @@ export default async function Home() {
             title="Top Box Office (Now)" 
             items={movies.filter(m => m.category === 'box-office')} 
           />
-          
-          <Section 
-            title="Trending Streaming" 
-            items={movies.filter(m => m.category === 'streaming')} 
-          />
         </div>
 
         <div id="shows">
-          <Section 
-            title="Popular Series" 
-            items={shows.filter(s => s.category === 'box-office')} 
-          />
-
           <Section 
             title="Trending Shows" 
             items={shows.filter(s => s.category === 'streaming')} 
@@ -126,15 +132,9 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-6 text-center md:text-left">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
             <h2 className="text-4xl font-black mb-8 md:mb-0 italic tracking-tighter">MOVIEREC.</h2>
-            <div className="flex gap-8 text-xs font-black uppercase tracking-widest text-gray-500">
-                <a href="#">ABOUT</a>
-                <a href="#">SEO DATA</a>
-                <a href="#">TMDB</a>
-            </div>
           </div>
-          <div className="pt-12 border-t border-gray-900 text-gray-500 text-[10px] font-black uppercase tracking-widest flex flex-col md:flex-row justify-between items-center gap-4">
-            <span>© {new Date().getFullYear()} MOVIEREC. THE 1M MAU MISSION.</span>
-            <span>NEXTJS 15 + TAILWIND BRUTALIST</span>
+          <div className="pt-12 border-t border-gray-900 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+            © {new Date().getFullYear()} MOVIEREC. THE 1M MAU MISSION.
           </div>
         </div>
       </footer>

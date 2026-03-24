@@ -5,7 +5,7 @@ export interface MediaItem {
   id: number;
   title: string;
   type: 'movie' | 'show';
-  category: 'box-office' | 'streaming' | 'upcoming' | '2026' | 'awards';
+  category: 'box-office' | 'streaming' | 'upcoming' | '2026' | 'awards' | 'bra';
   rating: number;
   year: number;
   image: string;
@@ -30,34 +30,26 @@ export async function getMediaData(): Promise<{
   shows: MediaItem[], 
   upcoming2025: MediaItem[],
   upcoming2026: MediaItem[],
-  awards: MediaItem[],
+  oscars: MediaItem[],
+  bra: MediaItem[],
   awardYear: number
 }> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth(); // 0-indexed, 2 is March
-  
-  // Oscars usually happen in March. If it's before or during March, 
-  // we might still want to show the nominees for the ceremony happening this year 
-  // (which are movies from the previous year).
-  // If it's late in the year, we show the ones from the ceremony that just happened.
-  
-  // Logical Award Year: The ceremony happening in 2026 honors 2025 movies.
-  // 2024 Best Picture: Oppenheimer (Ceremony 2024)
-  // 2025 Best Picture: Anora (Ceremony 2025 - current as of early 2026)
-  const awardYear = currentMonth <= 3 ? currentYear - 1 : currentYear;
+  const awardYear = 2025; // Ceremony 2026 honors 2025 movies
+  const currentYear = 2026;
 
-  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarNominees] = await Promise.all([
+  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarData, braData] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' }),
-    // Fetching the top critically acclaimed movies of the award year to simulate the Nominees
-    fetchFromTMDB('/discover/movie', { primary_release_year: awardYear.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '1000' })
+    // Oscars 2026 (2025 movies)
+    fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'vote_average.desc', 'vote_count.gte': '2000' }),
+    // BRA 2026 (Simulated high-rated drama/history for Black Reel)
+    fetchFromTMDB('/discover/movie', { primary_release_year: '2025', with_genres: '18,36', sort_by: 'vote_average.desc', 'vote_count.gte': '500' })
   ]);
 
   const mapItem = (m: any, type: 'movie' | 'show', category: any): MediaItem => ({
@@ -70,12 +62,18 @@ export async function getMediaData(): Promise<{
     image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
     description: m.overview,
     releaseDate: m.release_date || m.first_air_date,
-    isWinner: false // Logic for winner badge can be added here
+    isWinner: false
   });
 
-  const awardItems = oscarNominees.results.slice(0, 5).map((m: any, index: number) => {
+  const oscarItems = oscarData.results.slice(0, 5).map((m: any, i: number) => {
     const item = mapItem(m, 'movie', 'awards');
-    if (index === 0) item.isWinner = true; // Mark top one as winner for UI
+    if (i === 0) item.isWinner = true;
+    return item;
+  });
+
+  const braItems = braData.results.slice(0, 5).map((m: any, i: number) => {
+    const item = mapItem(m, 'movie', 'bra');
+    if (i === 0) item.isWinner = true;
     return item;
   });
 
@@ -90,7 +88,8 @@ export async function getMediaData(): Promise<{
     ],
     upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
     upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
-    awards: awardItems,
+    oscars: oscarItems,
+    bra: braItems,
     awardYear
   };
 }
@@ -124,6 +123,26 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
       title: m.title || m.name,
       image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
       type
+    }))
+  };
+}
+
+export async function getAwardCeremonyData(slug: string) {
+  // Mocking award specific nominees based on slug
+  const year = 2025;
+  const data = await fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': 500 });
+  
+  return {
+    name: slug.toUpperCase().replace(/-/g, ' '),
+    year: 2026,
+    nominees: data.results.slice(0, 10).map((m: any, i: number) => ({
+      id: m.id,
+      title: m.title,
+      image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+      rating: m.vote_average,
+      year: 2025,
+      isWinner: i === 0,
+      description: m.overview
     }))
   };
 }
