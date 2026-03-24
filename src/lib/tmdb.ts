@@ -103,16 +103,11 @@ export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
     ]);
     const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
     return [
-      map(oscars, 'Black Reel Awards (The BRAs)'), // wait, I used oscar variable by mistake in the map? Fixed below
+      map(bra, 'Black Reel Awards (The BRAs)'),
       map(naacp, 'NAACP Image Awards'),
       map(aafca, 'AAFCA Awards'),
       map(bfcc, 'Black Film Critics Circle Awards')
-    ].map((ceremony, idx) => {
-        // Redo map logic correctly for the second branch
-        const sourceData = [bra, naacp, aafca, bfcc][idx];
-        const names = ['Black Reel Awards (The BRAs)', 'NAACP Image Awards', 'AAFCA Awards', 'Black Film Critics Circle Awards'];
-        return map(sourceData, names[idx]);
-    });
+    ];
   }
 }
 
