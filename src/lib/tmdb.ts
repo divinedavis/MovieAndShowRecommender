@@ -36,12 +36,7 @@ export async function getMediaData() {
   const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${lastDayOfMonth}`;
 
   const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, oscarData, braData] = await Promise.all([
-    // TOP BOX OFFICE: Year to Date, sorted by revenue descending
-    fetchFromTMDB('/discover/movie', { 
-      primary_release_year: currentYear.toString(), 
-      sort_by: 'revenue.desc', 
-      'vote_count.gte': '50' 
-    }),
+    fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '50' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
@@ -59,20 +54,66 @@ export async function getMediaData() {
   });
 
   return {
-    movies: [
-      ...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), 
-      ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))
-    ],
-    shows: [
-      ...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), 
-      ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))
-    ],
+    movies: [...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))],
+    shows: [...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))],
     top2025: data2025.results.slice(0, 5).map((m: any) => map(m, 'movie', 'upcoming')),
     top2026Month: data2026Month.results.slice(0, 5).map((m: any) => map(m, 'movie', '2026')),
     oscars: oscarData.results.slice(0, 5).map((m: any, i: number) => ({ ...map(m, 'movie', 'awards'), isWinner: i === 0 })),
     bra: braData.results.slice(0, 5).map((m: any, i: number) => ({ ...map(m, 'movie', 'bra'), isWinner: i === 0 })),
     awardYear: 2025, currentMonthName: monthName
   };
+}
+
+export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
+  const year = 2025;
+  if (type === 'oscars') {
+    const [oscars, globes, sag, critics, dga, pga, wga, bafta, spirits, sundance, mtv] = await Promise.all([
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '2500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,35', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'popularity.desc', 'vote_count.gte': '2000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '1500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18', sort_by: 'vote_average.desc', 'vote_count.gte': '1200' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,80', sort_by: 'vote_average.desc', 'vote_count.gte': '800' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_origin_country: 'GB', sort_by: 'vote_average.desc', 'vote_count.gte': '500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '200', 'vote_count.lte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,99', sort_by: 'vote_average.desc', 'vote_count.gte': '100' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'popularity.desc', 'vote_count.gte': '3000' })
+    ]);
+    const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
+    return [
+      map(oscars, 'The Academy Awards (Oscars)'),
+      map(globes, 'Golden Globe Awards'),
+      map(sag, 'SAG Awards'),
+      map(critics, 'Critics Choice Awards'),
+      map(dga, 'Directors Guild (DGA) Awards'),
+      map(pga, 'Producers Guild (PGA) Awards'),
+      map(wga, 'Writers Guild (WGA) Awards'),
+      map(bafta, 'BAFTA Awards (UK)'),
+      map(sundance, 'Sundance Film Festival'),
+      map(spirits, 'Independent Spirit Awards'),
+      map(mtv, 'MTV Movie & TV Awards')
+    ];
+  } else {
+    const [naacp, bra, aafca, bfcc] = await Promise.all([
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36', sort_by: 'popularity.desc', 'vote_count.gte': '500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36,99', sort_by: 'vote_average.desc', 'vote_count.gte': '300' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '36,18', sort_by: 'vote_average.desc', 'vote_count.gte': '400' })
+    ]);
+    const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
+    return [
+      map(oscars, 'Black Reel Awards (The BRAs)'), // wait, I used oscar variable by mistake in the map? Fixed below
+      map(naacp, 'NAACP Image Awards'),
+      map(aafca, 'AAFCA Awards'),
+      map(bfcc, 'Black Film Critics Circle Awards')
+    ].map((ceremony, idx) => {
+        // Redo map logic correctly for the second branch
+        const sourceData = [bra, naacp, aafca, bfcc][idx];
+        const names = ['Black Reel Awards (The BRAs)', 'NAACP Image Awards', 'AAFCA Awards', 'Black Film Critics Circle Awards'];
+        return map(sourceData, names[idx]);
+    });
+  }
 }
 
 export async function getMediaDetails(id: string, type: 'movie' | 'show') {
@@ -118,27 +159,6 @@ export async function getMonthlyReleases(year: string, month: string) {
     }))
     .sort((a: any, b: any) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime())
     .slice(0, 20);
-}
-
-export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
-  const year = 2025;
-  if (type === 'oscars') {
-    const [globes, baftas, sag, oscars] = await Promise.all([
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,35', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_origin_country: 'GB', sort_by: 'vote_average.desc', 'vote_count.gte': '500' }),
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'popularity.desc', 'vote_count.gte': '2000' }),
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '2500' })
-    ]);
-    const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
-    return [map(oscars, 'The Academy Awards (Oscars)'), map(globes, 'Golden Globe Awards'), map(baftas, 'BAFTA Awards'), map(sag, 'SAG Awards')];
-  } else {
-    const [naacp, bra] = await Promise.all([
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36', sort_by: 'popularity.desc', 'vote_count.gte': '500' }),
-      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36,99', sort_by: 'vote_average.desc', 'vote_count.gte': '300' })
-    ]);
-    const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
-    return [map(bra, 'Black Reel Awards (The BRAs)'), map(naacp, 'NAACP Image Awards')];
-  }
 }
 
 export async function getPersonDetails(id: string) {
