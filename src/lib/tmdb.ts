@@ -36,7 +36,7 @@ export async function getMediaData(): Promise<{
 }> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
-  const awardYear = 2025; // Ceremony 2026 honors 2025 movies
+  const awardYear = 2025;
   const currentYear = 2026;
 
   const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarData, braData] = await Promise.all([
@@ -46,9 +46,7 @@ export async function getMediaData(): Promise<{
     fetchFromTMDB('/trending/tv/week'),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' }),
-    // Oscars 2026 (2025 movies)
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'vote_average.desc', 'vote_count.gte': '2000' }),
-    // BRA 2026 (Simulated high-rated drama/history for Black Reel)
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', with_genres: '18,36', sort_by: 'vote_average.desc', 'vote_count.gte': '500' })
   ]);
 
@@ -65,18 +63,6 @@ export async function getMediaData(): Promise<{
     isWinner: false
   });
 
-  const oscarItems = oscarData.results.slice(0, 5).map((m: any, i: number) => {
-    const item = mapItem(m, 'movie', 'awards');
-    if (i === 0) item.isWinner = true;
-    return item;
-  });
-
-  const braItems = braData.results.slice(0, 5).map((m: any, i: number) => {
-    const item = mapItem(m, 'movie', 'bra');
-    if (i === 0) item.isWinner = true;
-    return item;
-  });
-
   return {
     movies: [
       ...boxOfficeData.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'box-office')),
@@ -88,10 +74,70 @@ export async function getMediaData(): Promise<{
     ],
     upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
     upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
-    oscars: oscarItems,
-    bra: braItems,
+    oscars: oscarData.results.slice(0, 5).map((m: any, i: number) => ({ ...mapItem(m, 'movie', 'awards'), isWinner: i === 0 })),
+    bra: braData.results.slice(0, 5).map((m: any, i: number) => ({ ...mapItem(m, 'movie', 'bra'), isWinner: i === 0 })),
     awardYear
   };
+}
+
+export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
+  const year = 2025;
+  
+  if (type === 'oscars') {
+    const [globes, critics, baftas, sag, oscars, spirit] = await Promise.all([
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,35', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '1500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_origin_country: 'GB', sort_by: 'vote_average.desc', 'vote_count.gte': '500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'popularity.desc', 'vote_count.gte': '2000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '2500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '200', 'vote_count.lte': '1000' })
+    ]);
+
+    const map = (data: any, name: string) => ({
+      name,
+      nominees: data.results.slice(0, 5).map((m: any, i: number) => ({
+        id: m.id,
+        title: m.title,
+        image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+        year: 2025,
+        isWinner: i === 0
+      }))
+    });
+
+    return [
+      map(oscars, 'The Academy Awards (Oscars)'),
+      map(globes, 'Golden Globe Awards'),
+      map(baftas, 'BAFTA Awards'),
+      map(sag, 'SAG Awards'),
+      map(critics, 'Critics Choice Awards'),
+      map(spirit, 'Independent Spirit Awards')
+    ];
+  } else {
+    const [naacp, bra, aafca, bfcc] = await Promise.all([
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36', sort_by: 'popularity.desc', 'vote_count.gte': '500' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36,99', sort_by: 'vote_average.desc', 'vote_count.gte': '300' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }),
+      fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '36,18', sort_by: 'vote_average.desc', 'vote_count.gte': '400' })
+    ]);
+
+    const map = (data: any, name: string) => ({
+      name,
+      nominees: data.results.slice(0, 5).map((m: any, i: number) => ({
+        id: m.id,
+        title: m.title,
+        image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+        year: 2025,
+        isWinner: i === 0
+      }))
+    });
+
+    return [
+      map(bra, 'Black Reel Awards (The BRAs)'),
+      map(naacp, 'NAACP Image Awards'),
+      map(aafca, 'AAFCA Awards'),
+      map(bfcc, 'Black Film Critics Circle Awards')
+    ];
+  }
 }
 
 export async function getMediaDetails(id: string, type: 'movie' | 'show') {
@@ -123,26 +169,6 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
       title: m.title || m.name,
       image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
       type
-    }))
-  };
-}
-
-export async function getAwardCeremonyData(slug: string) {
-  // Mocking award specific nominees based on slug
-  const year = 2025;
-  const data = await fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': 500 });
-  
-  return {
-    name: slug.toUpperCase().replace(/-/g, ' '),
-    year: 2026,
-    nominees: data.results.slice(0, 10).map((m: any, i: number) => ({
-      id: m.id,
-      title: m.title,
-      image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
-      rating: m.vote_average,
-      year: 2025,
-      isWinner: i === 0,
-      description: m.overview
     }))
   };
 }

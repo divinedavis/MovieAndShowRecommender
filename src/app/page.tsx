@@ -44,7 +44,7 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
         {link ? (
           <Link href={link} className="group inline-block">
             <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors">{title}</h2>
-            <span className="ml-4 text-gray-300 font-black italic uppercase text-lg group-hover:text-blue-600">+ VIEW ALL CEREMONIES</span>
+            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-sm md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL CEREMONIES</span>
           </Link>
         ) : (
           <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block">{title}</h2>
