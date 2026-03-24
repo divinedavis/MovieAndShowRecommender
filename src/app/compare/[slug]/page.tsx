@@ -75,13 +75,13 @@ export default async function ComparePage({ params }: Props) {
         <div className="grid grid-cols-2 gap-12">
           <div className="space-y-6">
             <h3 className="font-black uppercase text-xl">{m1.title}</h3>
-            {m1.streamingProviders.map(p => (
+            {m1.streamingProviders.map((p: string) => (
               <div key={p} className="bg-gray-100 p-4 rounded-xl border-2 border-black font-black uppercase italic text-sm">{p}</div>
             ))}
           </div>
           <div className="space-y-6 text-right">
             <h3 className="font-black uppercase text-xl">{m2.title}</h3>
-            {m2.streamingProviders.map(p => (
+            {m2.streamingProviders.map((p: string) => (
               <div key={p} className="bg-blue-600 text-white p-4 rounded-xl border-2 border-black font-black uppercase italic text-sm">{p}</div>
             ))}
           </div>
