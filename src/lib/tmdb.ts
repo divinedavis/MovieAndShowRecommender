@@ -64,27 +64,6 @@ export async function getMediaData() {
   };
 }
 
-export async function getMediaDetails(id: string, type: 'movie' | 'show') {
-  const data = await fetchFromTMDB(`/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { append_to_response: 'similar,credits,watch/providers,videos' });
-  const providers = data['watch/providers']?.results?.US?.flatrate?.map((p: any) => p.provider_name) || [];
-  const watchLink = data['watch/providers']?.results?.US?.link || null;
-  
-  // Find official trailer
-  const video = data.videos?.results?.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || data.videos?.results?.[0];
-  const trailerKey = video?.key || null;
-
-  return {
-    id: data.id, title: data.title || data.name, description: data.overview,
-    image: `https://image.tmdb.org/t/p/original${data.backdrop_path || data.poster_path}`,
-    poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
-    rating: data.vote_average, year: new Date(data.release_date || data.first_air_date).getFullYear(),
-    genres: data.genres.map((g: any) => g.name), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
-    streamingProviders: providers, watchLink, collection: data.belongs_to_collection, trailerKey,
-    cast: data.credits.cast.slice(0, 10).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
-    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average, year: new Date(m.release_date || m.first_air_date).getFullYear() }))
-  };
-}
-
 export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
   const year = 2025;
   if (type === 'oscars') {
@@ -120,7 +99,6 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
   const providers = data['watch/providers']?.results?.US?.flatrate?.map((p: any) => p.provider_name) || [];
   const watchLink = data['watch/providers']?.results?.US?.link || null;
   
-  // Find official trailer
   const video = data.videos?.results?.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || data.videos?.results?.[0];
   const trailerKey = video?.key || null;
 
