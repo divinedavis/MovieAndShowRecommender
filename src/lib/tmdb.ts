@@ -5,7 +5,7 @@ export interface MediaItem {
   id: number;
   title: string;
   type: 'movie' | 'show';
-  category: 'box-office' | 'streaming' | 'upcoming' | '2026';
+  category: 'box-office' | 'streaming' | 'upcoming' | '2026' | 'awards';
   rating: number;
   year: number;
   image: string;
@@ -28,19 +28,23 @@ export async function getMediaData(): Promise<{
   movies: MediaItem[], 
   shows: MediaItem[], 
   upcoming2025: MediaItem[],
-  upcoming2026: MediaItem[] 
+  upcoming2026: MediaItem[],
+  awards: MediaItem[]
 }> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
   const currentYear = new Date().getFullYear();
 
-  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026] = await Promise.all([
+  // Fetch Oscar Best Picture Winners (using a list or specific filtering for award-winners if possible)
+  // For now, we fetch highly rated movies that won awards or are critically acclaimed
+  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarData] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
-    fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' })
+    fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' }),
+    fetchFromTMDB('/discover/movie', { sort_by: 'vote_average.desc', 'vote_count.gte': '5000', with_genres: '18' }) // Drama winners often
   ]);
 
   const mapItem = (m: any, type: 'movie' | 'show', category: any): MediaItem => ({
@@ -65,7 +69,8 @@ export async function getMediaData(): Promise<{
       ...trendingShowsData.results.slice(0, 5).map((m: any) => mapItem(m, 'show', 'streaming'))
     ],
     upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
-    upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026'))
+    upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
+    awards: oscarData.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'awards'))
   };
 }
 
