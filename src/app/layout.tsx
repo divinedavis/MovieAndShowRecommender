@@ -18,6 +18,28 @@ export const metadata: Metadata = {
     template: "%s | MovieRec",
   },
   description: "The world's most optimized movie and show recommender. Find what to watch in 2026, track award winners, and explore cinematic franchises.",
+  openGraph: {
+    title: "MovieRec",
+    description: "The ultimate movie and show discovery engine.",
+    url: "https://movies.unittap.com",
+    siteName: "MovieRec",
+    images: [
+      {
+        url: "/og-logo.png", // This will now point to your brand logo
+        width: 1200,
+        height: 630,
+        alt: "MovieRec Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MovieRec",
+    description: "The ultimate movie and show discovery engine.",
+    images: ["/og-logo.png"],
+  },
 };
 
 export default function RootLayout({
