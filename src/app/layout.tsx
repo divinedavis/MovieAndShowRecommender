@@ -19,6 +19,16 @@ export const metadata: Metadata = {
     template: "%s | MovieRec",
   },
   description: "The world's most optimized movie and show recommender. Find what to watch in 2026, track award winners, and explore cinematic franchises.",
+  alternates: {
+    canonical: "/",
+    languages: {
+      "en-US": "/",
+      "es-ES": "/es",
+      "fr-FR": "/fr",
+      "de-DE": "/de",
+      "hi-IN": "/hi",
+    },
+  },
   openGraph: {
     title: "MovieRec",
     description: "The ultimate movie and show discovery engine.",
