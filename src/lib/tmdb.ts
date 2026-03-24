@@ -36,7 +36,12 @@ export async function getMediaData() {
   const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${lastDayOfMonth}`;
 
   const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, oscarData, braData] = await Promise.all([
-    fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
+    // TOP BOX OFFICE: Year to Date, sorted by revenue descending
+    fetchFromTMDB('/discover/movie', { 
+      primary_release_year: currentYear.toString(), 
+      sort_by: 'revenue.desc', 
+      'vote_count.gte': '50' 
+    }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
@@ -54,8 +59,14 @@ export async function getMediaData() {
   });
 
   return {
-    movies: [...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))],
-    shows: [...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))],
+    movies: [
+      ...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), 
+      ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))
+    ],
+    shows: [
+      ...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), 
+      ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))
+    ],
     top2025: data2025.results.slice(0, 5).map((m: any) => map(m, 'movie', 'upcoming')),
     top2026Month: data2026Month.results.slice(0, 5).map((m: any) => map(m, 'movie', '2026')),
     oscars: oscarData.results.slice(0, 5).map((m: any, i: number) => ({ ...map(m, 'movie', 'awards'), isWinner: i === 0 })),
@@ -100,8 +111,6 @@ export async function getMonthlyReleases(year: string, month: string) {
   const startDate = `${year}-${month.padStart(2, '0')}-01`;
   const endDate = `${year}-${month.padStart(2, '0')}-31`;
   const data = await fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' });
-  
-  // SORTED FROM CLOSEST DATE TO FURTHEST AWAY DATE
   return data.results
     .map((m: any) => ({
       id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, 
