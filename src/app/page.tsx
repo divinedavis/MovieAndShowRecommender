@@ -1,15 +1,16 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { getMediaData, MediaItem } from '@/lib/tmdb';
 
 function MediaCard({ item }: { item: MediaItem }) {
   return (
-    <article className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white">
+    <Link href={`/${item.type}/${item.id}`} className="block border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all bg-white group">
       <div className="relative h-64 w-full">
         <Image
           src={item.image}
           alt={item.title}
           fill
-          className="object-cover"
+          className="object-cover transition-transform group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
@@ -23,7 +24,7 @@ function MediaCard({ item }: { item: MediaItem }) {
         <p className="text-gray-500 text-sm mb-2">{item.year} • {item.type === 'movie' ? 'Movie' : 'TV Show'}</p>
         <p className="text-gray-700 text-sm line-clamp-3 h-15">{item.description}</p>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -31,7 +32,7 @@ function Section({ title, items }: { title: string, items: MediaItem[] }) {
   if (items.length === 0) return null;
   return (
     <section className="mb-16">
-      <h2 className="text-2xl font-black mb-8 pb-4 border-b border-gray-200 tracking-tight text-gray-900">{title}</h2>
+      <h2 className="text-2xl font-black mb-8 pb-4 border-b border-gray-200 tracking-tight text-gray-900 uppercase">{title}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
         {items.map((item) => (
           <MediaCard key={item.id} item={item} />
@@ -42,9 +43,9 @@ function Section({ title, items }: { title: string, items: MediaItem[] }) {
 }
 
 export default async function Home() {
-  const { movies, shows } = await getMediaData();
+  const { movies, shows, upcoming } = await getMediaData();
 
-  const allItems = [...movies, ...shows];
+  const allItems = [...movies, ...shows, ...upcoming];
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -77,21 +78,27 @@ export default async function Home() {
       
       <header className="bg-white border-b sticky top-0 z-10 shadow-sm py-4">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div>
+          <Link href="/">
             <h1 className="text-2xl font-black tracking-tighter text-blue-600">MOVIEREC</h1>
             <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">SEO RANKING POWERED</p>
-          </div>
+          </Link>
           <nav className="hidden md:flex space-x-8 text-sm font-bold uppercase tracking-wide">
             <a href="#movies" className="hover:text-blue-600 transition">Movies</a>
             <a href="#shows" className="hover:text-blue-600 transition">Shows</a>
+            <a href="#upcoming" className="hover:text-blue-600 transition">2025 Release</a>
           </nav>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
+        <Section 
+          title="Most Anticipated 2025 Movies" 
+          items={upcoming} 
+        />
+
         <div id="movies">
           <Section 
-            title="Top 5 Box Office (2024)" 
+            title="Top 5 Box Office (Current)" 
             items={movies.filter(m => m.category === 'box-office')} 
           />
           
@@ -122,14 +129,6 @@ export default async function Home() {
               <p className="text-gray-400 text-sm leading-relaxed">
                 Building the worlds most optimized movie recommender to reach 1M MAU as fast as possible.
               </p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4 uppercase text-xs tracking-widest text-blue-400">Resources</h3>
-              <ul className="text-sm text-gray-400 space-y-2">
-                <li><a href="#" className="hover:text-white">SEO Strategy</a></li>
-                <li><a href="#" className="hover:text-white">API Documentation</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-              </ul>
             </div>
           </div>
           <div className="pt-8 border-t border-gray-800 text-gray-500 text-xs font-bold uppercase tracking-widest">
