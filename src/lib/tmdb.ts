@@ -5,13 +5,14 @@ export interface MediaItem {
   id: number;
   title: string;
   type: 'movie' | 'show';
-  category: 'box-office' | 'streaming' | 'upcoming';
+  category: 'box-office' | 'streaming' | 'upcoming' | '2026';
   rating: number;
   year: number;
   image: string;
   description: string;
   genres?: string[];
   releaseDate?: string;
+  streamingProviders?: string[];
 }
 
 async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}) {
@@ -23,17 +24,23 @@ async function fetchFromTMDB(endpoint: string, params: Record<string, string> = 
   return res.json();
 }
 
-export async function getMediaData(): Promise<{ movies: MediaItem[], shows: MediaItem[], upcoming: MediaItem[] }> {
+export async function getMediaData(): Promise<{ 
+  movies: MediaItem[], 
+  shows: MediaItem[], 
+  upcoming2025: MediaItem[],
+  upcoming2026: MediaItem[] 
+}> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
   const currentYear = new Date().getFullYear();
 
-  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, upcomingData] = await Promise.all([
+  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
-    fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' })
+    fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
+    fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' })
   ]);
 
   const mapItem = (m: any, type: 'movie' | 'show', category: any): MediaItem => ({
@@ -57,12 +64,18 @@ export async function getMediaData(): Promise<{ movies: MediaItem[], shows: Medi
       ...popularShowsData.results.slice(0, 5).map((m: any) => mapItem(m, 'show', 'box-office')),
       ...trendingShowsData.results.slice(0, 5).map((m: any) => mapItem(m, 'show', 'streaming'))
     ],
-    upcoming: upcomingData.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming'))
+    upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
+    upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026'))
   };
 }
 
 export async function getMediaDetails(id: string, type: 'movie' | 'show') {
-  const data = await fetchFromTMDB(`/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { append_to_response: 'similar,credits' });
+  const data = await fetchFromTMDB(`/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { 
+    append_to_response: 'similar,credits,watch/providers' 
+  });
+  
+  const providers = data['watch/providers']?.results?.US?.flatrate?.map((p: any) => p.provider_name) || [];
+
   return {
     id: data.id,
     title: data.title || data.name,
@@ -73,7 +86,13 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
     year: new Date(data.release_date || data.first_air_date).getFullYear(),
     genres: data.genres.map((g: any) => g.name),
     runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
-    cast: data.credits.cast.slice(0, 5).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
+    streamingProviders: providers,
+    cast: data.credits.cast.slice(0, 5).map((c: any) => ({ 
+      id: c.id, 
+      name: c.name, 
+      character: c.character, 
+      image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null 
+    })),
     similar: data.similar.results.slice(0, 5).map((m: any) => ({
       id: m.id,
       title: m.title || m.name,
