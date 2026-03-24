@@ -21,26 +21,13 @@ export default async function MoviePage({ params }: Props) {
   const { id } = await params;
   const details = await getMediaDetails(id, 'movie');
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Movie',
-    'name': details.title,
-    'description': details.description,
-    'image': details.poster,
-    'datePublished': details.year.toString(),
-    'aggregateRating': {
-      '@type': 'AggregateRating',
-      'ratingValue': details.rating.toFixed(1),
-      'bestRating': '10',
-      'ratingCount': '100'
-    },
-    'actor': details.cast.map((c: any) => ({ '@type': 'Person', 'name': c.name })),
-  };
+  // Logic for YouTube App vs Web deep linking
+  const trailerUrl = details.trailerKey 
+    ? `https://www.youtube.com/watch?v=${details.trailerKey}`
+    : null;
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      
       <div className="relative h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
@@ -71,7 +58,19 @@ export default async function MoviePage({ params }: Props) {
           <section>
             <div className="flex justify-between items-center mb-8 border-l-8 border-blue-600 pl-6">
                 <h2 className="text-3xl font-black italic tracking-tight uppercase">The Story</h2>
-                <Link href={`/after/${id}`} className="bg-black text-white text-[10px] font-black px-4 py-2 uppercase hover:bg-blue-600 transition border-2 border-black">Movies Like This →</Link>
+                <div className="flex gap-4">
+                    {trailerUrl && (
+                        <a 
+                          href={trailerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-red-600 text-white text-[10px] font-black px-4 py-2 uppercase hover:bg-red-700 transition border-2 border-black flex items-center gap-2"
+                        >
+                          <span className="text-lg">▶</span> OFFICIAL TRAILER
+                        </a>
+                    )}
+                    <Link href={`/after/${id}`} className="bg-black text-white text-[10px] font-black px-4 py-2 uppercase hover:bg-blue-600 transition border-2 border-black">Movies Like This →</Link>
+                </div>
             </div>
             <p className="text-gray-800 text-xl leading-relaxed font-medium">{details.description}</p>
           </section>
