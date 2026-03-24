@@ -30,10 +30,9 @@ export async function getMediaData() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
-  const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
   const monthName = now.toLocaleString('default', { month: 'long' });
   const startDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
-  const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${lastDayOfMonth}`;
+  const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`;
 
   const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, oscarData, braData] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '50' }),
@@ -81,19 +80,7 @@ export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
       fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), sort_by: 'popularity.desc', 'vote_count.gte': '3000' })
     ]);
     const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
-    return [
-      map(oscars, 'The Academy Awards (Oscars)'),
-      map(globes, 'Golden Globe Awards'),
-      map(sag, 'SAG Awards'),
-      map(critics, 'Critics Choice Awards'),
-      map(dga, 'Directors Guild (DGA) Awards'),
-      map(pga, 'Producers Guild (PGA) Awards'),
-      map(wga, 'Writers Guild (WGA) Awards'),
-      map(bafta, 'BAFTA Awards (UK)'),
-      map(sundance, 'Sundance Film Festival'),
-      map(spirits, 'Independent Spirit Awards'),
-      map(mtv, 'MTV Movie & TV Awards')
-    ];
+    return [map(oscars, 'The Academy Awards (Oscars)'), map(globes, 'Golden Globe Awards'), map(sag, 'SAG Awards'), map(critics, 'Critics Choice Awards'), map(dga, 'Directors Guild (DGA) Awards'), map(pga, 'Producers Guild (PGA) Awards'), map(wga, 'Writers Guild (WGA) Awards'), map(bafta, 'BAFTA Awards (UK)'), map(sundance, 'Sundance Film Festival'), map(spirits, 'Independent Spirit Awards'), map(mtv, 'MTV Movie & TV Awards')];
   } else {
     const [naacp, bra, aafca, bfcc] = await Promise.all([
       fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '18,36', sort_by: 'popularity.desc', 'vote_count.gte': '500' }),
@@ -102,12 +89,7 @@ export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
       fetchFromTMDB('/discover/movie', { primary_release_year: year.toString(), with_genres: '36,18', sort_by: 'vote_average.desc', 'vote_count.gte': '400' })
     ]);
     const map = (data: any, name: string) => ({ name, nominees: data.results.slice(0, 5).map((m: any, i: number) => ({ id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 })) });
-    return [
-      map(bra, 'Black Reel Awards (The BRAs)'),
-      map(naacp, 'NAACP Image Awards'),
-      map(aafca, 'AAFCA Awards'),
-      map(bfcc, 'Black Film Critics Circle Awards')
-    ];
+    return [map(bra, 'Black Reel Awards (The BRAs)'), map(naacp, 'NAACP Image Awards'), map(aafca, 'AAFCA Awards'), map(bfcc, 'Black Film Critics Circle Awards')];
   }
 }
 
@@ -122,38 +104,47 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
     genres: data.genres.map((g: any) => g.name), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
     streamingProviders: providers, collection: data.belongs_to_collection,
     cast: data.credits.cast.slice(0, 10).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
-    similar: data.similar.results.slice(0, 5).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type }))
+    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average, year: new Date(m.release_date || m.first_air_date).getFullYear() }))
   };
 }
 
 export async function getCollectionDetails(id: string) {
-  const data = await fetchFromTMDB(`/collection/${id}`);
+  const data = await fetchFromTMDB(`/collection/${id}`, { append_to_response: 'movie' });
+  const partsWithRuntime = await Promise.all(data.parts.map(async (p: any) => {
+    const details = await fetchFromTMDB(`/movie/${p.id}`);
+    return { ...p, runtime: details.runtime || 0 };
+  }));
+  const totalMinutes = partsWithRuntime.reduce((acc, p) => acc + p.runtime, 0);
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
   return {
     name: data.name, description: data.overview, image: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
-    parts: data.parts.sort((a: any, b: any) => new Date(a.release_date).getTime() - new Date(b.release_date).getTime()).map((m: any) => ({
-      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average, description: m.overview
+    bingeTime: `${hours}h ${mins}m`,
+    parts: partsWithRuntime.sort((a: any, b: any) => new Date(a.release_date).getTime() - new Date(b.release_date).getTime()).map((m: any) => ({
+      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average, description: m.overview, runtime: m.runtime
     }))
   };
 }
 
-export async function getPlatformGenreData(platformId: string, genreId: string) {
-  const data = await fetchFromTMDB('/discover/movie', { with_watch_providers: platformId, watch_region: 'US', with_genres: genreId, sort_by: 'popularity.desc' });
+export async function getPlatformGenreMonth(platformId: string, genreId: string, year: string, month: string) {
+  const startDate = `${year}-${month.padStart(2, '0')}-01`;
+  const endDate = `${year}-${month.padStart(2, '0')}-31`;
+  const data = await fetchFromTMDB('/discover/movie', { with_watch_providers: platformId, watch_region: 'US', with_genres: genreId, 'primary_release_date.gte': '2020-01-01', sort_by: 'popularity.desc' });
   return data.results.slice(0, 20).map((m: any) => ({
     id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average
   }));
 }
 
-export async function getMonthlyReleases(year: string, month: string) {
-  const startDate = `${year}-${month.padStart(2, '0')}-01`;
-  const endDate = `${year}-${month.padStart(2, '0')}-31`;
-  const data = await fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' });
-  return data.results
+export async function getPersonBest(id: string) {
+  const data = await fetchFromTMDB(`/person/${id}`, { append_to_response: 'combined_credits' });
+  const best = data.combined_credits.cast
+    .filter((m: any) => m.vote_count > 100)
+    .sort((a: any, b: any) => b.vote_average - a.vote_average)
+    .slice(0, 20)
     .map((m: any) => ({
-      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, 
-      year: new Date(m.release_date).getFullYear(), rating: m.vote_average, releaseDate: m.release_date
-    }))
-    .sort((a: any, b: any) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime())
-    .slice(0, 20);
+      id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type: m.media_type, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average
+    }));
+  return { name: data.name, best };
 }
 
 export async function getPersonDetails(id: string) {

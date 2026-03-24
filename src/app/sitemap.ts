@@ -28,26 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  const showUrls = shows.map((s) => ({
-    url: `${baseUrl}/show/${s.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
-
-  // New Traffic Engines
-  const platformGenreUrls = ['netflix-horror', 'max-drama', 'disney-animation', 'amazon-action'].map(slug => ({
-    url: `${baseUrl}/best/${slug}`,
+  const platformSlugs = ['netflix', 'max', 'disney', 'amazon', 'apple'];
+  const platformUrls = platformSlugs.map(p => ({
+    url: `${baseUrl}/best/${p}/03`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.9,
-  }));
-
-  const calendarUrls = ['2026/03', '2026/04', '2026/05', '2026/06'].map(path => ({
-    url: `${baseUrl}/calendar/${path}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
   }));
 
   return [
@@ -55,8 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...movieUrls,
     ...awardUrls,
     ...genreUrls,
-    ...showUrls,
-    ...platformGenreUrls,
-    ...calendarUrls
+    ...platformUrls
   ];
 }

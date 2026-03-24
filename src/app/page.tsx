@@ -8,7 +8,7 @@ function MediaCard({ item }: { item: MediaItem }) {
       <div className="relative h-80 w-full border-b-4 border-black">
         <Image
           src={item.image}
-          alt={item.title}
+          alt={`Poster for ${item.title}`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -72,12 +72,12 @@ export default async function Home() {
             <div className="bg-blue-600 border-4 border-black text-white px-4 py-1 font-black text-2xl italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
             <div className="hidden md:block">
               <h1 className="text-2xl font-black tracking-tighter leading-none uppercase">OSCARS & RECS</h1>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.5 // TRAFFIC ENGINES LIVE</p>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.6 // NEW ENGINES LIVE</p>
             </div>
           </Link>
-          <nav className="hidden md:flex space-x-6 text-xs font-black uppercase tracking-widest">
-            <Link href="/best/netflix-horror" className="hover:text-red-600">Netflix Horror</Link>
-            <Link href="/calendar/2026/03" className="hover:text-blue-600">2026 Calendar</Link>
+          <nav className="hidden md:flex items-center space-x-6 text-xs font-black uppercase tracking-widest">
+            <Link href="/best/netflix/03" className="hover:text-red-600">Netflix Top</Link>
+            <Link href="/best/max/03" className="hover:text-blue-600">Max Top</Link>
             <div className="w-px h-4 bg-gray-200 self-center"></div>
             <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2">THE OSCARS</a>
             <a href="#bra" className="hover:text-blue-600 transition underline decoration-2">BLACK REEL</a>
