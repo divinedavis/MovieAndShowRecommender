@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getMediaData, MediaItem } from '@/lib/tmdb';
+import { getCountryByLang, TOP_COUNTRIES } from '@/lib/countries';
 
 function MediaCard({ item }: { item: MediaItem }) {
   return (
@@ -62,7 +63,8 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
 }
 
 export default async function Home({ lang = 'en-US' }: { lang?: string }) {
-  const { movies, shows, top2025, top2026Month, oscars, bra, currentMonthName } = await getMediaData(lang);
+  const country = getCountryByLang(lang.split('-')[0]);
+  const { movies, shows, top2025, top2026Month, localAwards, currentMonthName } = await getMediaData(lang, country.code);
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
@@ -77,11 +79,17 @@ export default async function Home({ lang = 'en-US' }: { lang?: string }) {
             </Link>
           </div>
           <nav className="flex items-center space-x-4 md:space-x-6 text-[10px] font-black uppercase tracking-widest overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+            {/* Country Selector */}
+            <div className="flex items-center gap-2 border-r-2 border-gray-200 pr-4">
+                <span className="text-gray-400 italic">Region:</span>
+                <Link href="/" className={`hover:text-blue-600 ${country.code === 'US' ? 'text-blue-600 underline' : ''}`}>US</Link>
+                <Link href="/fr" className={`hover:text-blue-600 ${country.code === 'FR' ? 'text-blue-600 underline' : ''}`}>FR</Link>
+                <Link href="/es" className={`hover:text-blue-600 ${country.code === 'ES' ? 'text-blue-600 underline' : ''}`}>ES</Link>
+                <Link href="/ko" className={`hover:text-blue-600 ${country.code === 'KR' ? 'text-blue-600 underline' : ''}`}>KR</Link>
+                <Link href="/hi" className={`hover:text-blue-600 ${country.code === 'IN' ? 'text-blue-600 underline' : ''}`}>IN</Link>
+            </div>
             <Link href="/best/netflix/03" className="hover:text-red-600 whitespace-nowrap">Netflix</Link>
             <Link href="/best/max/03" className="hover:text-blue-600 whitespace-nowrap">Max</Link>
-            <div className="flex-shrink-0 w-px h-4 bg-gray-200 hidden md:block"></div>
-            <Link href="/es" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap italic">ESPAÑOL</Link>
-            <Link href="/fr" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap italic">FRANÇAIS</Link>
           </nav>
         </div>
       </header>
@@ -90,24 +98,16 @@ export default async function Home({ lang = 'en-US' }: { lang?: string }) {
         
         <Section 
           id="oscars"
-          title="Best Picture Award" 
-          subtitle="Academy Awards (The Oscars) // 2026 Winners & Nominees"
-          items={oscars} 
-          link="/awards/oscars"
-        />
-
-        <Section 
-          id="bra"
-          title="The BRA Awards" 
-          subtitle="Black Reel Awards (The BRAs) // 2026 Excellence in Cinema"
-          items={bra} 
-          link="/awards/black-reel"
+          title={country.awardCeremony} 
+          subtitle={`${country.name} Local Cinema // 2026 Winners & Nominees`}
+          items={localAwards} 
+          link={`/awards/${country.code.toLowerCase()}`}
         />
 
         <Section 
           id="2026"
           title={`Top 2026 Movies This ${currentMonthName}`} 
-          subtitle={`Most Popular Releases in ${currentMonthName} 2026`}
+          subtitle={`Most Popular Releases in ${country.name} (${currentMonthName})`}
           items={top2026Month} 
           link={`/calendar/2026/03`}
         />
@@ -121,7 +121,7 @@ export default async function Home({ lang = 'en-US' }: { lang?: string }) {
 
         <div id="movies">
           <Section 
-            title="Top Box Office (Current)" 
+            title={`Top Box Office in ${country.name}`} 
             items={movies.filter(m => m.category === 'box-office')} 
           />
         </div>
