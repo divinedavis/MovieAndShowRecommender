@@ -41,7 +41,7 @@ export default async function FranchisePage({ params }: Props) {
               <div key={movie.id} className={`relative flex flex-col lg:flex-row items-center ${index % 2 === 0 ? 'lg:flex-row-reverse' : ''}`}>
                 <div className="lg:w-1/2 p-8">
                   <Link href={`/movie/${movie.id}`} className="block bg-white border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all group overflow-hidden rounded-3xl">
-                    <div className="relative h-96 w-full">
+                    <div className="relative aspect-[2/3] w-full">
                       <Image src={movie.image} alt={`Poster for ${movie.title}`} fill className="object-cover transition-transform group-hover:scale-110" />
                       <div className="absolute top-6 left-6 bg-blue-600 text-white font-black px-4 py-2 italic border-2 border-black">#{index + 1}</div>
                     </div>

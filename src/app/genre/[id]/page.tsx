@@ -48,7 +48,7 @@ export default async function GenrePage({ params }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
           {movies.map((item: any) => (
             <Link key={item.id} href={`/movie/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
-              <div className="relative h-72 w-full border-b-4 border-black">
+              <div className="relative aspect-[2/3] w-full border-b-4 border-black">
                 <Image src={item.image} alt={item.title} fill className="object-cover" />
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
               </div>
@@ -66,7 +66,7 @@ export default async function GenrePage({ params }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
           {shows.map((item: any) => (
             <Link key={item.id} href={`/show/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
-              <div className="relative h-72 w-full border-b-4 border-black">
+              <div className="relative aspect-[2/3] w-full border-b-4 border-black">
                 <Image src={item.image} alt={item.title} fill className="object-cover" />
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
               </div>

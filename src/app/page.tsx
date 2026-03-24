@@ -5,7 +5,7 @@ import { getMediaData, MediaItem } from '@/lib/tmdb';
 function MediaCard({ item }: { item: MediaItem }) {
   return (
     <Link href={`/${item.type}/${item.id}`} className="block bg-white rounded-2xl overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
-      <div className="relative h-64 md:h-80 w-full border-b-4 border-black">
+      <div className="relative aspect-[2/3] w-full border-b-4 border-black">
         <Image
           src={item.image}
           alt={`Poster for ${item.title}`}

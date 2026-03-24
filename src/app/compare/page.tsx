@@ -30,7 +30,7 @@ export default async function CompareSelectPage() {
                   className="flex items-center justify-between bg-white border-4 border-black p-6 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group"
                 >
                   <div className="flex items-center gap-4 w-5/12">
-                    <div className="relative h-20 w-14 flex-shrink-0">
+                    <div className="relative aspect-[2/3] w-14 flex-shrink-0">
                       <Image src={m1.image} alt={m1.title} fill className="object-cover rounded-lg border-2 border-black" />
                     </div>
                     <span className="font-black uppercase text-sm leading-tight line-clamp-2">{m1.title}</span>
@@ -40,7 +40,7 @@ export default async function CompareSelectPage() {
 
                   <div className="flex items-center gap-4 w-5/12 text-right justify-end">
                     <span className="font-black uppercase text-sm leading-tight line-clamp-2">{m2.title}</span>
-                    <div className="relative h-20 w-14 flex-shrink-0">
+                    <div className="relative aspect-[2/3] w-14 flex-shrink-0">
                       <Image src={m2.image} alt={m2.title} fill className="object-cover rounded-lg border-2 border-black" />
                     </div>
                   </div>

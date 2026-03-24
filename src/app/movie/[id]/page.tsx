@@ -79,7 +79,7 @@ export default async function MoviePage({ params }: Props) {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
               {details.cast.map((c: any) => (
                 <Link key={c.id} href={`/person/${c.id}`} className="group">
-                  {c.image && <div className="relative h-40 md:h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all group-hover:scale-105">
+                  {c.image && <div className="relative aspect-[2/3] md:h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all group-hover:scale-105">
                     <Image src={c.image} alt={`Actor ${c.name}`} fill className="object-cover" />
                   </div>}
                   <p className="font-black text-xs md:text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{c.name}</p>
@@ -134,7 +134,7 @@ export default async function MoviePage({ params }: Props) {
             <div className="space-y-4 md:space-y-6">
               {details.similar.slice(0, 5).map((s: any) => (
                 <Link key={s.id} href={`/movie/${s.id}`} className="flex items-center space-x-4 md:space-x-5 group">
-                  <div className="relative h-20 md:h-24 w-14 md:w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
+                  <div className="relative aspect-[2/3] md:h-24 w-14 md:w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
                     <Image src={s.image} alt={`Similar title ${s.title}`} fill className="object-cover rounded-xl" />
                   </div>
                   <p className="font-black text-xs md:text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight break-words">{s.title}</p>

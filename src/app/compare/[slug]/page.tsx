@@ -39,7 +39,7 @@ export default async function ComparePage({ params }: Props) {
 
       <div className="flex flex-col lg:flex-row gap-12 items-stretch justify-center max-w-7xl mx-auto mb-20">
         <div className="lg:w-1/3 bg-white border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] rounded-[40px] overflow-hidden">
-          <div className="relative h-[500px]">
+          <div className="relative aspect-[2/3]">
             <Image src={m1.image} alt={m1.title} fill className="object-cover" />
           </div>
           <div className="p-8 text-center">
@@ -61,7 +61,7 @@ export default async function ComparePage({ params }: Props) {
         </div>
 
         <div className="lg:w-1/3 bg-white border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] rounded-[40px] overflow-hidden">
-          <div className="relative h-[500px]">
+          <div className="relative aspect-[2/3]">
             <Image src={m2.image} alt={m2.title} fill className="object-cover" />
           </div>
           <div className="p-8 text-center">
