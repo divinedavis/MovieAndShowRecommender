@@ -28,24 +28,39 @@ async function fetchFromTMDB(endpoint: string, params: Record<string, string> = 
 export async function getMediaData(): Promise<{ 
   movies: MediaItem[], 
   shows: MediaItem[], 
-  upcoming2025: MediaItem[],
-  upcoming2026: MediaItem[],
+  top2025: MediaItem[],
+  top2026Month: MediaItem[],
   oscars: MediaItem[],
   bra: MediaItem[],
-  awardYear: number
+  awardYear: number,
+  currentMonthName: string
 }> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
-  const awardYear = 2025;
-  const currentYear = 2026;
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1; // 1-indexed
+  const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+  
+  const monthName = now.toLocaleString('default', { month: 'long' });
+  const startDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
+  const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${lastDayOfMonth}`;
 
-  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarData, braData] = await Promise.all([
+  const awardYear = 2025;
+
+  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026Month, oscarData, braData] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
+    // Top from 2025
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
-    fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' }),
+    // Top 2026 Movies This Month
+    fetchFromTMDB('/discover/movie', { 
+      'primary_release_date.gte': startDate, 
+      'primary_release_date.lte': endDate,
+      sort_by: 'popularity.desc' 
+    }),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'vote_average.desc', 'vote_count.gte': '2000' }),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', with_genres: '18,36', sort_by: 'vote_average.desc', 'vote_count.gte': '500' })
   ]);
@@ -72,11 +87,12 @@ export async function getMediaData(): Promise<{
       ...popularShowsData.results.slice(0, 5).map((m: any) => mapItem(m, 'show', 'box-office')),
       ...trendingShowsData.results.slice(0, 5).map((m: any) => mapItem(m, 'show', 'streaming'))
     ],
-    upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
-    upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
+    top2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
+    top2026Month: data2026Month.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
     oscars: oscarData.results.slice(0, 5).map((m: any, i: number) => ({ ...mapItem(m, 'movie', 'awards'), isWinner: i === 0 })),
     bra: braData.results.slice(0, 5).map((m: any, i: number) => ({ ...mapItem(m, 'movie', 'bra'), isWinner: i === 0 })),
-    awardYear
+    awardYear,
+    currentMonthName: monthName
   };
 }
 

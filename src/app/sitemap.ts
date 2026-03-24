@@ -2,10 +2,10 @@ import { MetadataRoute } from 'next';
 import { getMediaData } from '@/lib/tmdb';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { movies, shows, upcoming2025, upcoming2026, oscars, bra } = await getMediaData();
+  const { movies, shows, top2025, top2026Month, oscars, bra } = await getMediaData();
   const baseUrl = 'https://movies.unittap.com';
 
-  const movieUrls = [...movies, ...upcoming2025, ...upcoming2026, ...oscars, ...bra].map((m) => ({
+  const movieUrls = [...movies, ...top2025, ...top2026Month, ...oscars, ...bra].map((m) => ({
     url: `${baseUrl}/movie/${m.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,

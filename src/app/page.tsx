@@ -44,7 +44,7 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
         {link ? (
           <Link href={link} className="group inline-block">
             <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors">{title}</h2>
-            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-sm md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL CEREMONIES</span>
+            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-sm md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL</span>
           </Link>
         ) : (
           <h2 className="text-5xl font-black tracking-tighter text-black uppercase italic inline-block">{title}</h2>
@@ -62,7 +62,7 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
 }
 
 export default async function Home() {
-  const { movies, shows, upcoming2025, upcoming2026, oscars, bra } = await getMediaData();
+  const { movies, shows, top2025, top2026Month, oscars, bra, currentMonthName } = await getMediaData();
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black">
@@ -72,13 +72,13 @@ export default async function Home() {
             <div className="bg-blue-600 border-4 border-black text-white px-4 py-1 font-black text-2xl italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
             <div className="hidden md:block">
               <h1 className="text-2xl font-black tracking-tighter leading-none uppercase">OSCARS & RECS</h1>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.2 // 2026 WINNERS LIVE</p>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.3 // MARCH 2026 LIVE</p>
             </div>
           </Link>
           <nav className="hidden md:flex space-x-8 text-xs font-black uppercase tracking-widest">
             <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2">THE OSCARS</a>
             <a href="#bra" className="hover:text-blue-600 transition underline decoration-2">BLACK REEL</a>
-            <a href="#2025" className="hover:text-blue-600 transition">2025</a>
+            <a href="#2026" className="hover:text-blue-600 transition">2026 TOP</a>
           </nav>
         </div>
       </header>
@@ -102,20 +102,22 @@ export default async function Home() {
         />
 
         <Section 
-          id="2025"
-          title="Upcoming 2025" 
-          items={upcoming2025} 
+          id="2026"
+          title={`Top 2026 Movies This ${currentMonthName}`} 
+          subtitle={`Most Popular Releases in ${currentMonthName} 2026`}
+          items={top2026Month} 
         />
 
         <Section 
-          id="2026"
-          title="Coming in 2026" 
-          items={upcoming2026} 
+          id="2025"
+          title="Top from 2025" 
+          subtitle="The Absolute Best Movies of the Previous Year"
+          items={top2025} 
         />
 
         <div id="movies">
           <Section 
-            title="Top Box Office (Now)" 
+            title="Top Box Office (Current)" 
             items={movies.filter(m => m.category === 'box-office')} 
           />
         </div>
