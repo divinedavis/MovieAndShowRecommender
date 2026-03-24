@@ -13,6 +13,7 @@ export interface MediaItem {
   genres?: string[];
   releaseDate?: string;
   streamingProviders?: string[];
+  isWinner?: boolean;
 }
 
 async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}) {
@@ -29,22 +30,34 @@ export async function getMediaData(): Promise<{
   shows: MediaItem[], 
   upcoming2025: MediaItem[],
   upcoming2026: MediaItem[],
-  awards: MediaItem[]
+  awards: MediaItem[],
+  awardYear: number
 }> {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
 
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-indexed, 2 is March
+  
+  // Oscars usually happen in March. If it's before or during March, 
+  // we might still want to show the nominees for the ceremony happening this year 
+  // (which are movies from the previous year).
+  // If it's late in the year, we show the ones from the ceremony that just happened.
+  
+  // Logical Award Year: The ceremony happening in 2026 honors 2025 movies.
+  // 2024 Best Picture: Oppenheimer (Ceremony 2024)
+  // 2025 Best Picture: Anora (Ceremony 2025 - current as of early 2026)
+  const awardYear = currentMonth <= 3 ? currentYear - 1 : currentYear;
 
-  // Fetch Oscar Best Picture Winners (using a list or specific filtering for award-winners if possible)
-  // For now, we fetch highly rated movies that won awards or are critically acclaimed
-  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarData] = await Promise.all([
+  const [boxOfficeData, trendingMoviesData, popularShowsData, trendingShowsData, data2025, data2026, oscarNominees] = await Promise.all([
     fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), sort_by: 'revenue.desc', 'vote_count.gte': '100' }),
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2026', sort_by: 'popularity.desc' }),
-    fetchFromTMDB('/discover/movie', { sort_by: 'vote_average.desc', 'vote_count.gte': '5000', with_genres: '18' }) // Drama winners often
+    // Fetching the top critically acclaimed movies of the award year to simulate the Nominees
+    fetchFromTMDB('/discover/movie', { primary_release_year: awardYear.toString(), sort_by: 'vote_average.desc', 'vote_count.gte': '1000' })
   ]);
 
   const mapItem = (m: any, type: 'movie' | 'show', category: any): MediaItem => ({
@@ -56,7 +69,14 @@ export async function getMediaData(): Promise<{
     year: new Date(m.release_date || m.first_air_date).getFullYear(),
     image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
     description: m.overview,
-    releaseDate: m.release_date || m.first_air_date
+    releaseDate: m.release_date || m.first_air_date,
+    isWinner: false // Logic for winner badge can be added here
+  });
+
+  const awardItems = oscarNominees.results.slice(0, 5).map((m: any, index: number) => {
+    const item = mapItem(m, 'movie', 'awards');
+    if (index === 0) item.isWinner = true; // Mark top one as winner for UI
+    return item;
   });
 
   return {
@@ -70,7 +90,8 @@ export async function getMediaData(): Promise<{
     ],
     upcoming2025: data2025.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'upcoming')),
     upcoming2026: data2026.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', '2026')),
-    awards: oscarData.results.slice(0, 5).map((m: any) => mapItem(m, 'movie', 'awards'))
+    awards: awardItems,
+    awardYear
   };
 }
 

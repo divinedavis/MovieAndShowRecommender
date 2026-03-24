@@ -3,11 +3,12 @@ import { getMediaDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const details = await getMediaDetails(params.id, 'show');
+  const { id } = await params;
+  const details = await getMediaDetails(id, 'show');
   return {
     title: `Watch ${details.title} (${details.year}) - Stream & Full Cast`,
     description: details.description.substring(0, 160),
@@ -16,7 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ShowPage({ params }: Props) {
-  const details = await getMediaDetails(params.id, 'show');
+  const { id } = await params;
+  const details = await getMediaDetails(id, 'show');
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -31,69 +33,80 @@ export default async function ShowPage({ params }: Props) {
       'bestRating': '10',
       'ratingCount': '100'
     },
-    'actor': details.cast.map(c => ({ '@type': 'Person', 'name': c.name })),
+    'actor': details.cast.map((c: any) => ({ '@type': 'Person', 'name': c.name })),
   };
 
   return (
     <main className="min-h-screen bg-gray-50">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
-      <div className="relative h-[60vh] w-full">
+      <div className="relative h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={details.title} fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 p-8 max-w-7xl mx-auto w-full">
-          <h1 className="text-5xl font-black text-white mb-4 tracking-tighter">{details.title.toUpperCase()}</h1>
-          <div className="flex items-center space-x-4 text-white font-bold">
-            <span className="bg-yellow-500 text-black px-2 py-1 rounded">{details.rating.toFixed(1)}</span>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 p-10 max-w-7xl mx-auto w-full">
+          <h1 className="text-7xl font-black text-white mb-6 italic tracking-tighter shadow-2xl">{details.title.toUpperCase()}</h1>
+          <div className="flex flex-wrap items-center gap-6 text-white font-black text-xs uppercase tracking-widest">
+            <span className="bg-yellow-500 text-black px-3 py-1.5 rounded font-black text-sm italic">{details.rating.toFixed(1)} IMDB</span>
             <span>{details.year}</span>
-            <div className="flex space-x-2">
-              {details.genres.map(g => (
-                <span key={g} className="border border-white/30 px-2 py-0.5 rounded text-xs">{g.toUpperCase()}</span>
+            <div className="flex gap-3">
+              {details.genres.map((g: string) => (
+                <span key={g} className="border-2 border-white/40 px-3 py-1 rounded text-[10px]">{g.toUpperCase()}</span>
               ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 space-y-12">
+      <div className="max-w-7xl mx-auto px-10 py-20 grid grid-cols-1 lg:grid-cols-3 gap-20">
+        <div className="lg:col-span-2 space-y-16">
           <section>
-            <h2 className="text-2xl font-black mb-6 uppercase tracking-tight">Overview</h2>
-            <p className="text-gray-700 text-lg leading-relaxed">{details.description}</p>
+            <h2 className="text-3xl font-black mb-8 italic tracking-tight border-l-8 border-blue-600 pl-6">THE STORY</h2>
+            <p className="text-gray-800 text-xl leading-relaxed font-medium">{details.description}</p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-black mb-6 uppercase tracking-tight">Top Cast</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              {details.cast.map(c => (
-                <div key={c.id} className="text-center">
-                  {c.image && <div className="relative h-32 w-full mb-2 rounded-lg overflow-hidden">
+            <h2 className="text-3xl font-black mb-8 italic tracking-tight border-l-8 border-blue-600 pl-6">THE CREW</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-6">
+              {details.cast.map((c: any) => (
+                <div key={c.id} className="group">
+                  {c.image && <div className="relative h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all">
                     <Image src={c.image} alt={c.name} fill className="object-cover" />
                   </div>}
-                  <p className="font-bold text-sm">{c.name}</p>
-                  <p className="text-gray-500 text-xs">{c.character}</p>
+                  <p className="font-black text-sm uppercase tracking-tight">{c.name}</p>
+                  <p className="text-gray-400 text-[10px] font-black uppercase">{c.character}</p>
                 </div>
               ))}
             </div>
           </section>
         </div>
 
-        <aside className="space-y-8">
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <h3 className="font-black mb-4 uppercase text-xs tracking-widest text-blue-600">Where to Watch</h3>
-            <button className="w-full bg-blue-600 text-white font-black py-4 rounded-lg hover:bg-blue-700 transition mb-4 shadow-lg">STREAM NOW</button>
-            <p className="text-xs text-gray-500 text-center font-bold">Official providers only</p>
+        <aside className="space-y-12">
+          <div className="bg-white p-8 rounded-3xl border-4 border-gray-900 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
+            <h3 className="font-black mb-6 uppercase text-xs tracking-widest text-blue-600">STREAMING PROVIDERS</h3>
+            {details.streamingProviders.length > 0 ? (
+              <div className="space-y-4">
+                {details.streamingProviders.map((p: string) => (
+                  <div key={p} className="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border-2 border-gray-200">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                    <span className="font-black text-sm uppercase italic">{p}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400 text-xs font-bold uppercase italic">Check availability on Netflix / HBO Max / Amazon Prime</p>
+            )}
+            <button className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition mt-8 shadow-xl uppercase italic tracking-widest text-sm">WATCH NOW</button>
           </div>
 
           <div>
-            <h3 className="font-black mb-6 uppercase text-sm tracking-tight">Similar Shows</h3>
-            <div className="space-y-4">
-              {details.similar.map(s => (
-                <a key={s.id} href={`/show/${s.id}`} className="flex items-center space-x-4 group">
-                  <div className="relative h-20 w-14 flex-shrink-0">
-                    <Image src={s.image} alt={s.title} fill className="object-cover rounded" />
+            <h3 className="font-black mb-8 uppercase text-sm tracking-tight border-b-2 border-gray-100 pb-4 italic">SIMILAR SHOWS</h3>
+            <div className="space-y-6">
+              {details.similar.map((s: any) => (
+                <a key={s.id} href={`/show/${s.id}`} className="flex items-center space-x-5 group">
+                  <div className="relative h-24 w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
+                    <Image src={s.image} alt={s.title} fill className="object-cover rounded-xl" />
                   </div>
-                  <p className="font-bold group-hover:text-blue-600 transition">{s.title}</p>
+                  <p className="font-black text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight">{s.title}</p>
                 </a>
               ))}
             </div>
