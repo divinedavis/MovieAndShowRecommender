@@ -61,8 +61,8 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
   );
 }
 
-export default async function Home() {
-  const { movies, shows, top2025, top2026Month, oscars, bra, currentMonthName } = await getMediaData();
+export default async function Home({ lang = 'en-US' }: { lang?: string }) {
+  const { movies, shows, top2025, top2026Month, oscars, bra, currentMonthName } = await getMediaData(lang);
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
@@ -80,13 +80,14 @@ export default async function Home() {
             <Link href="/best/netflix/03" className="hover:text-red-600 whitespace-nowrap">Netflix</Link>
             <Link href="/best/max/03" className="hover:text-blue-600 whitespace-nowrap">Max</Link>
             <div className="flex-shrink-0 w-px h-4 bg-gray-200 hidden md:block"></div>
-            <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap">Oscars</a>
-            <a href="#bra" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap">Black Reel</a>
+            <Link href="/es" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap italic">ESPAÑOL</Link>
+            <Link href="/fr" className="hover:text-blue-600 transition underline decoration-2 whitespace-nowrap italic">FRANÇAIS</Link>
           </nav>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
+        
         <Section 
           id="oscars"
           title="Best Picture Award" 
