@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "MovieRec",
     images: [
       {
-        url: "https://placehold.jp/120/2563eb/ffffff/1200x630.png?text=MOVIEREC",
+        url: "/logo.png",
         width: 1200,
         height: 630,
         alt: "MovieRec Logo",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "MovieRec",
     description: "The ultimate movie and show discovery engine.",
-    images: ["https://placehold.jp/120/2563eb/ffffff/1200x630.png?text=MOVIEREC"],
+    images: ["/logo.png"],
   },
 };
 

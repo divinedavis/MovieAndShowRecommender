@@ -69,8 +69,8 @@ export default async function Home() {
       <header className="bg-white border-b-4 border-black sticky top-0 z-50 shadow-md py-4 md:py-6">
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
-            <Link href="/" className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
-                <div className="bg-blue-600 border-2 md:border-4 border-black text-white px-2 md:px-4 py-0.5 md:py-1 font-black text-lg md:text-2xl italic tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
+            <Link href="/" className="flex items-center flex-shrink-0">
+                <Image src="/logo.png" alt="MovieRec Logo" width={180} height={60} className="h-10 md:h-12 w-auto" priority />
             </Link>
             <Link href="/compare" className="bg-yellow-400 border-2 md:border-4 border-black text-black px-3 md:px-4 py-1 md:py-1.5 font-black text-[10px] md:text-sm uppercase italic tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all whitespace-nowrap">
                 Compare →
@@ -136,7 +136,7 @@ export default async function Home() {
       <footer className="bg-gray-950 text-white py-16 md:py-24 mt-20 border-t-8 border-blue-600">
         <div className="max-w-7xl mx-auto px-6 text-center md:text-left">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black mb-8 md:mb-0 italic tracking-tighter">MOVIEREC.</h2>
+            <Image src="/logo.png" alt="MovieRec Logo" width={150} height={50} className="h-10 w-auto invert brightness-0 grayscale opacity-50 mb-8 md:mb-0" />
           </div>
           <div className="pt-12 border-t border-gray-900 text-gray-500 text-[10px] font-black uppercase tracking-widest">
             © {new Date().getFullYear()} MOVIEREC. THE 1M MAU MISSION.
