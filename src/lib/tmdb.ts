@@ -53,9 +53,7 @@ export async function getMediaData(): Promise<{
     fetchFromTMDB('/trending/movie/week'),
     fetchFromTMDB('/tv/popular'),
     fetchFromTMDB('/trending/tv/week'),
-    // Top from 2025
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }),
-    // Top 2026 Movies This Month
     fetchFromTMDB('/discover/movie', { 
       'primary_release_date.gte': startDate, 
       'primary_release_date.lte': endDate,
@@ -174,7 +172,7 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
     genres: data.genres.map((g: any) => g.name),
     runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
     streamingProviders: providers,
-    cast: data.credits.cast.slice(0, 5).map((c: any) => ({ 
+    cast: data.credits.cast.slice(0, 10).map((c: any) => ({ 
       id: c.id, 
       name: c.name, 
       character: c.character, 
@@ -187,4 +185,48 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show') {
       type
     }))
   };
+}
+
+export async function getPersonDetails(id: string) {
+  const data = await fetchFromTMDB(`/person/${id}`, { append_to_response: 'combined_credits' });
+  const credits = data.combined_credits.cast
+    .sort((a: any, b: any) => (b.vote_count || 0) - (a.vote_count || 0))
+    .slice(0, 15)
+    .map((m: any) => ({
+      id: m.id,
+      title: m.title || m.name,
+      image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+      type: m.media_type,
+      year: new Date(m.release_date || m.first_air_date).getFullYear(),
+      rating: m.vote_average
+    }));
+
+  return {
+    id: data.id,
+    name: data.name,
+    biography: data.biography,
+    birthday: data.birthday,
+    place_of_birth: data.place_of_birth,
+    image: `https://image.tmdb.org/t/p/h632${data.profile_path}`,
+    known_for: data.known_for_department,
+    credits
+  };
+}
+
+export async function getMediaByGenre(genreId: string, type: 'movie' | 'show') {
+  const data = await fetchFromTMDB(`/discover/${type === 'movie' ? 'movie' : 'tv'}`, {
+    with_genres: genreId,
+    sort_by: 'popularity.desc',
+    'vote_count.gte': '100'
+  });
+  
+  return data.results.slice(0, 20).map((m: any) => ({
+    id: m.id,
+    title: m.title || m.name,
+    type,
+    image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+    year: new Date(m.release_date || m.first_air_date).getFullYear(),
+    rating: m.vote_average,
+    description: m.overview
+  }));
 }

@@ -1,0 +1,77 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { getPersonDetails } from '@/lib/tmdb';
+import { Metadata } from 'next';
+
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const details = await getPersonDetails(id);
+  return {
+    title: `${details.name} - Filmography, Awards & Upcoming Projects`,
+    description: details.biography?.substring(0, 160) || `Explore the movies and TV shows of ${details.name}.`,
+    openGraph: { images: [details.image] }
+  };
+}
+
+export default async function PersonPage({ params }: Props) {
+  const { id } = await params;
+  const details = await getPersonDetails(id);
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    'name': details.name,
+    'description': details.biography,
+    'image': details.image,
+    'jobTitle': details.known_for,
+    'birthDate': details.birthday,
+    'birthPlace': details.place_of_birth
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      
+      <header className="mb-20 flex flex-col md:flex-row gap-12 items-start">
+        <div className="relative h-[500px] w-full md:w-[350px] flex-shrink-0 border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
+          {details.image && <Image src={details.image} alt={details.name} fill className="object-cover" priority />}
+        </div>
+        <div className="flex-grow">
+          <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO DISCOVERY</Link>
+          <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase mb-6">{details.name}</h1>
+          <div className="flex flex-wrap gap-4 mb-8 text-xs font-black uppercase tracking-widest">
+            <span className="bg-black text-white px-4 py-2">{details.known_for}</span>
+            {details.birthday && <span className="border-4 border-black px-4 py-2">BORN: {details.birthday}</span>}
+            {details.place_of_birth && <span className="border-4 border-black px-4 py-2">{details.place_of_birth}</span>}
+          </div>
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-black uppercase italic mb-4 border-b-4 border-black inline-block">Biography</h2>
+            <p className="text-xl font-medium leading-relaxed line-clamp-6 md:line-clamp-none">{details.biography || "No biography available."}</p>
+          </div>
+        </div>
+      </header>
+
+      <section className="mb-24">
+        <h2 className="text-5xl font-black italic uppercase tracking-tighter mb-12 border-b-8 border-black pb-4">Top Filmography</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+          {details.credits.map((item: any) => (
+            <Link key={item.id} href={`/${item.type}/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
+              <div className="relative h-72 w-full border-b-4 border-black">
+                {item.image && <Image src={item.image} alt={item.title} fill className="object-cover" />}
+                <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
+              </div>
+              <div className="p-4">
+                <h3 className="font-black uppercase text-sm leading-tight mb-2 h-10 overflow-hidden">{item.title}</h3>
+                <p className="text-[10px] text-gray-500 font-black uppercase">{item.year} // {item.type.toUpperCase()}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

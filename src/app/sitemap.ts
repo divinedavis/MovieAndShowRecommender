@@ -20,6 +20,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const genreSlugs = ['horror', 'action', 'sci-fi', 'comedy', 'drama', 'documentary', 'animation'];
+  const genreUrls = genreSlugs.map(slug => ({
+    url: `${baseUrl}/genre/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.9,
+  }));
+
   const showUrls = shows.map((s) => ({
     url: `${baseUrl}/show/${s.id}`,
     lastModified: new Date(),
@@ -36,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...movieUrls,
     ...awardUrls,
+    ...genreUrls,
     ...showUrls,
   ];
 }

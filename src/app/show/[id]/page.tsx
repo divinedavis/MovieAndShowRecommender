@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { getMediaDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
 
@@ -68,13 +69,13 @@ export default async function ShowPage({ params }: Props) {
             <h2 className="text-3xl font-black mb-8 italic tracking-tight border-l-8 border-blue-600 pl-6">THE CREW</h2>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-6">
               {details.cast.map((c: any) => (
-                <div key={c.id} className="group">
-                  {c.image && <div className="relative h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all">
+                <Link key={c.id} href={`/person/${c.id}`} className="group">
+                  {c.image && <div className="relative h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all group-hover:scale-105">
                     <Image src={c.image} alt={c.name} fill className="object-cover" />
                   </div>}
-                  <p className="font-black text-sm uppercase tracking-tight">{c.name}</p>
+                  <p className="font-black text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{c.name}</p>
                   <p className="text-gray-400 text-[10px] font-black uppercase">{c.character}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </section>
@@ -102,12 +103,12 @@ export default async function ShowPage({ params }: Props) {
             <h3 className="font-black mb-8 uppercase text-sm tracking-tight border-b-2 border-gray-100 pb-4 italic">SIMILAR SHOWS</h3>
             <div className="space-y-6">
               {details.similar.map((s: any) => (
-                <a key={s.id} href={`/show/${s.id}`} className="flex items-center space-x-5 group">
+                <Link key={s.id} href={`/show/${s.id}`} className="flex items-center space-x-5 group">
                   <div className="relative h-24 w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
                     <Image src={s.image} alt={s.title} fill className="object-cover rounded-xl" />
                   </div>
                   <p className="font-black text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight">{s.title}</p>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
