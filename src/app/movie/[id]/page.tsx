@@ -37,6 +37,16 @@ export default async function MoviePage({ params }: Props) {
     'actor': details.cast.map((c: any) => ({ '@type': 'Person', 'name': c.name })),
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://movies.unittap.com' },
+      { '@type': 'ListItem', 'position': 2, 'name': details.genres[0] || 'Movies', 'item': `https://movies.unittap.com/genre/${details.genres[0]?.toLowerCase() || 'movie'}` },
+      { '@type': 'ListItem', 'position': 3, 'name': details.title, 'item': `https://movies.unittap.com/movie/${id}` }
+    ]
+  };
+
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -65,12 +75,20 @@ export default async function MoviePage({ params }: Props) {
   return (
     <main className="min-h-screen bg-gray-50">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       
       <div className="relative h-[65vh] w-full shadow-inner">
-        <Image src={details.image} alt={details.title} fill className="object-cover" priority />
+        <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
         <div className="absolute bottom-0 left-0 p-10 max-w-7xl mx-auto w-full">
+          <nav className="flex text-white/60 text-[10px] font-black uppercase tracking-widest mb-4 gap-2">
+            <Link href="/" className="hover:text-white">Home</Link>
+            <span>/</span>
+            <Link href={`/genre/${details.genres[0]?.toLowerCase()}`} className="hover:text-white">{details.genres[0]}</Link>
+            <span>/</span>
+            <span className="text-white">{details.title}</span>
+          </nav>
           <h1 className="text-7xl font-black text-white mb-6 italic tracking-tighter shadow-2xl">{details.title.toUpperCase()}</h1>
           <div className="flex flex-wrap items-center gap-6 text-white font-black text-xs uppercase tracking-widest">
             <span className="bg-yellow-400 text-black px-3 py-1.5 rounded font-black text-sm italic">{details.rating.toFixed(1)} IMDB</span>
@@ -98,7 +116,7 @@ export default async function MoviePage({ params }: Props) {
               {details.cast.map((c: any) => (
                 <Link key={c.id} href={`/person/${c.id}`} className="group">
                   {c.image && <div className="relative h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all group-hover:scale-105">
-                    <Image src={c.image} alt={c.name} fill className="object-cover" />
+                    <Image src={c.image} alt={`Actor ${c.name} as ${c.character}`} fill className="object-cover" />
                   </div>}
                   <p className="font-black text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{c.name}</p>
                   <p className="text-gray-400 text-[10px] font-black uppercase">{c.character}</p>
@@ -140,7 +158,7 @@ export default async function MoviePage({ params }: Props) {
               {details.similar.map((s: any) => (
                 <Link key={s.id} href={`/movie/${s.id}`} className="flex items-center space-x-5 group">
                   <div className="relative h-24 w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
-                    <Image src={s.image} alt={s.title} fill className="object-cover rounded-xl" />
+                    <Image src={s.image} alt={`Similar movie: ${s.title}`} fill className="object-cover rounded-xl" />
                   </div>
                   <p className="font-black text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight">{s.title}</p>
                 </Link>

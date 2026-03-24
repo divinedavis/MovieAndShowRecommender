@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getCollectionDetails(id);
   return {
-    title: `${details.name} - Official Watch Order & Timeline (2026 Updated)`,
-    description: `Everything you need to know about the ${details.name}. Full watch order, chronological timeline, and where to stream every movie.`
+    title: `Best ${details.name} Watch Order & Timeline (2026 Updated)`,
+    description: `The ultimate chronological guide to the ${details.name}. Watch the entire franchise in the correct order with our 2026 timeline.`
   };
 }
 
@@ -20,8 +20,19 @@ export default async function FranchisePage({ params }: Props) {
   const { id } = await params;
   const details = await getCollectionDetails(id);
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://movies.unittap.com' },
+      { '@type': 'ListItem', 'position': 2, 'name': 'Franchises', 'item': 'https://movies.unittap.com' },
+      { '@type': 'ListItem', 'position': 3, 'name': details.name, 'item': `https://movies.unittap.com/franchise/${id}` }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <header className="mb-20 flex flex-col items-center text-center">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4">← BACK TO DISCOVERY</Link>
         <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter uppercase mb-6">{details.name}</h1>
@@ -39,7 +50,7 @@ export default async function FranchisePage({ params }: Props) {
                 <div className="lg:w-1/2 p-8">
                   <Link href={`/movie/${movie.id}`} className="block bg-white border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all group overflow-hidden rounded-3xl">
                     <div className="relative h-96 w-full">
-                      <Image src={movie.image} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-110" />
+                      <Image src={movie.image} alt={`Poster for ${movie.title}`} fill className="object-cover transition-transform group-hover:scale-110" />
                       <div className="absolute top-6 left-6 bg-blue-600 text-white font-black px-4 py-2 italic border-2 border-black">#{index + 1}</div>
                     </div>
                     <div className="p-8">

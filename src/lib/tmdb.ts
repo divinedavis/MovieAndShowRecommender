@@ -97,13 +97,18 @@ export async function getPlatformGenreData(platformId: string, genreId: string) 
 }
 
 export async function getMonthlyReleases(year: string, month: string) {
-  const monthInt = parseInt(month);
   const startDate = `${year}-${month.padStart(2, '0')}-01`;
   const endDate = `${year}-${month.padStart(2, '0')}-31`;
   const data = await fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' });
-  return data.results.slice(0, 20).map((m: any) => ({
-    id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average, releaseDate: m.release_date
-  }));
+  
+  // SORTED FROM CLOSEST DATE TO FURTHEST AWAY DATE
+  return data.results
+    .map((m: any) => ({
+      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, 
+      year: new Date(m.release_date).getFullYear(), rating: m.vote_average, releaseDate: m.release_date
+    }))
+    .sort((a: any, b: any) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime())
+    .slice(0, 20);
 }
 
 export async function getAwardMultiCeremonyData(type: 'oscars' | 'black-reel') {
