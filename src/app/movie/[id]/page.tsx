@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getMediaDetails(id, 'movie');
   return {
-    title: `Watch ${details.title} (${details.year}) - Release Date & Full Cast`,
+    title: `Watch ${details.title} (${details.year}) - Release Date, Cast & Where to Stream`,
     description: details.description.substring(0, 160),
     openGraph: { images: [details.image] }
   };
@@ -37,9 +37,35 @@ export default async function MoviePage({ params }: Props) {
     'actor': details.cast.map((c: any) => ({ '@type': 'Person', 'name': c.name })),
   };
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': `Is ${details.title} on Netflix or HBO Max?`,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': details.streamingProviders.length > 0 
+            ? `Yes, ${details.title} is currently streaming on ${details.streamingProviders.join(', ')}.`
+            : `Currently, ${details.title} availability varies by region. Check your local listings for Netflix, Max, or Amazon Prime.`
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': `When was ${details.title} released?`,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': `${details.title} was released in ${details.year}.`
+        }
+      }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       
       <div className="relative h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={details.title} fill className="object-cover" priority />
@@ -47,7 +73,7 @@ export default async function MoviePage({ params }: Props) {
         <div className="absolute bottom-0 left-0 p-10 max-w-7xl mx-auto w-full">
           <h1 className="text-7xl font-black text-white mb-6 italic tracking-tighter shadow-2xl">{details.title.toUpperCase()}</h1>
           <div className="flex flex-wrap items-center gap-6 text-white font-black text-xs uppercase tracking-widest">
-            <span className="bg-yellow-500 text-black px-3 py-1.5 rounded font-black text-sm italic">{details.rating.toFixed(1)} IMDB</span>
+            <span className="bg-yellow-400 text-black px-3 py-1.5 rounded font-black text-sm italic">{details.rating.toFixed(1)} IMDB</span>
             <span>{details.year}</span>
             {details.runtime && <span>{details.runtime} MINS</span>}
             <div className="flex gap-3">
@@ -80,10 +106,18 @@ export default async function MoviePage({ params }: Props) {
               ))}
             </div>
           </section>
+
+          {details.collection && (
+            <section className="bg-blue-600 p-10 rounded-3xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] text-white">
+              <h2 className="text-3xl font-black mb-4 italic tracking-tight uppercase">Part of the {details.collection.name}</h2>
+              <p className="mb-8 font-bold opacity-90">Watch the entire franchise in chronological order.</p>
+              <Link href={`/franchise/${details.collection.id}`} className="bg-white text-black font-black px-8 py-4 rounded-xl uppercase italic hover:bg-yellow-400 transition inline-block border-2 border-black">VIEW WATCH ORDER</Link>
+            </section>
+          )}
         </div>
 
         <aside className="space-y-12">
-          <div className="bg-white p-8 rounded-3xl border-4 border-gray-900 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
+          <div className="bg-white p-8 rounded-3xl border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
             <h3 className="font-black mb-6 uppercase text-xs tracking-widest text-blue-600">STREAMING PROVIDERS</h3>
             {details.streamingProviders.length > 0 ? (
               <div className="space-y-4">
@@ -97,7 +131,7 @@ export default async function MoviePage({ params }: Props) {
             ) : (
               <p className="text-gray-400 text-xs font-bold uppercase italic">Check availability on Netflix / HBO Max / Amazon Prime</p>
             )}
-            <button className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition mt-8 shadow-xl uppercase italic tracking-widest text-sm">WATCH NOW</button>
+            <button className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 transition mt-8 shadow-xl uppercase italic tracking-widest text-sm border-2 border-black">WATCH NOW</button>
           </div>
 
           <div>

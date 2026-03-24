@@ -72,14 +72,12 @@ export default async function Home() {
             <div className="bg-blue-600 border-4 border-black text-white px-4 py-1 font-black text-2xl italic tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">MOVIEREC</div>
             <div className="hidden md:block">
               <h1 className="text-2xl font-black tracking-tighter leading-none uppercase">OSCARS & RECS</h1>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.4 // PERSON & GENRE PAGES LIVE</p>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SEO ENGINE v3.5 // TRAFFIC ENGINES LIVE</p>
             </div>
           </Link>
           <nav className="hidden md:flex space-x-6 text-xs font-black uppercase tracking-widest">
-            <Link href="/genre/horror" className="hover:text-red-600">Horror</Link>
-            <Link href="/genre/action" className="hover:text-blue-600">Action</Link>
-            <Link href="/genre/sci-fi" className="hover:text-purple-600">Sci-Fi</Link>
-            <Link href="/genre/comedy" className="hover:text-yellow-600">Comedy</Link>
+            <Link href="/best/netflix-horror" className="hover:text-red-600">Netflix Horror</Link>
+            <Link href="/calendar/2026/03" className="hover:text-blue-600">2026 Calendar</Link>
             <div className="w-px h-4 bg-gray-200 self-center"></div>
             <a href="#oscars" className="hover:text-blue-600 transition underline decoration-2">THE OSCARS</a>
             <a href="#bra" className="hover:text-blue-600 transition underline decoration-2">BLACK REEL</a>
@@ -110,6 +108,7 @@ export default async function Home() {
           title={`Top 2026 Movies This ${currentMonthName}`} 
           subtitle={`Most Popular Releases in ${currentMonthName} 2026`}
           items={top2026Month} 
+          link={`/calendar/2026/03`}
         />
 
         <Section 

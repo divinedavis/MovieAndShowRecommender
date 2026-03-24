@@ -35,16 +35,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // New Traffic Engines
+  const platformGenreUrls = ['netflix-horror', 'max-drama', 'disney-animation', 'amazon-action'].map(slug => ({
+    url: `${baseUrl}/best/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.9,
+  }));
+
+  const calendarUrls = ['2026/03', '2026/04', '2026/05', '2026/06'].map(path => ({
+    url: `${baseUrl}/calendar/${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
   return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
+    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     ...movieUrls,
     ...awardUrls,
     ...genreUrls,
     ...showUrls,
+    ...platformGenreUrls,
+    ...calendarUrls
   ];
 }
