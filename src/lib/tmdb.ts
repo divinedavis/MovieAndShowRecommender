@@ -16,6 +16,14 @@ export interface MediaItem {
   isWinner?: boolean;
 }
 
+// Manual Best Picture winners for major countries (2025 releases announced in 2026)
+const MANUAL_WINNERS: Record<string, string> = {
+  'US': 'One Battle After Another',
+  'FR': 'Emilia Pérez',
+  'KR': 'The Past',
+  'IN': 'Stree 2'
+};
+
 async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}, lang: string = 'en-US') {
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
   url.searchParams.append('api_key', API_KEY!);
@@ -26,17 +34,40 @@ async function fetchFromTMDB(endpoint: string, params: Record<string, string> = 
   return res.json();
 }
 
+// Helper to ensure full locale string for toLocaleString
+function getFullLocale(lang: string): string {
+  const mapping: Record<string, string> = {
+    'en': 'en-US',
+    'fr': 'fr-FR',
+    'es': 'es-ES',
+    'ko': 'ko-KR',
+    'hi': 'hi-IN',
+    'zh': 'zh-CN',
+    'ja': 'ja-JP',
+    'de': 'de-DE'
+  };
+  const short = lang.split('-')[0];
+  return mapping[short] || 'en-US';
+}
+
 export async function getMediaData(lang: string = 'en-US', countryCode: string = 'US') {
   if (!API_KEY) throw new Error('TMDB_API_KEY is not set');
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
-  const monthName = now.toLocaleString(lang, { month: 'long' });
+  const fullLocale = getFullLocale(lang);
+  
+  let monthName;
+  try {
+    monthName = now.toLocaleString(fullLocale, { month: 'long' });
+  } catch (e) {
+    monthName = now.toLocaleString('en-US', { month: 'long' });
+  }
+
   const startDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
   const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`;
 
   const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, localAwards] = await Promise.all([
-    // LOCAL BOX OFFICE: Filtered by Region
     fetchFromTMDB('/discover/movie', { 
       primary_release_year: currentYear.toString(), 
       region: countryCode,
@@ -48,7 +79,6 @@ export async function getMediaData(lang: string = 'en-US', countryCode: string =
     fetchFromTMDB('/trending/tv/week', { region: countryCode }, lang),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }, lang),
     fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' }, lang),
-    // Local Award Nominations (highly rated movies from that region/country)
     fetchFromTMDB('/discover/movie', { 
       primary_release_year: '2025', 
       with_origin_country: countryCode,
@@ -58,25 +88,30 @@ export async function getMediaData(lang: string = 'en-US', countryCode: string =
   ]);
 
   const map = (m: any, type: 'movie' | 'show', cat: any): MediaItem => ({
-    id: m.id, title: m.title || m.name, type, category: cat, rating: Number(m.vote_average.toFixed(1)),
+    id: m.id, title: m.title || m.name, type, category: cat, rating: m.vote_average ? Number(m.vote_average.toFixed(1)) : 0,
     year: new Date(m.release_date || m.first_air_date).getFullYear(),
     image: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
     description: m.overview, releaseDate: m.release_date || m.first_air_date
   });
+
+  const manualWinnerTitle = MANUAL_WINNERS[countryCode];
 
   return {
     movies: [...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))],
     shows: [...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))],
     top2025: data2025.results.slice(0, 5).map((m: any) => map(m, 'movie', 'upcoming')),
     top2026Month: data2026Month.results.slice(0, 5).map((m: any) => map(m, 'movie', '2026')),
-    localAwards: localAwards.results.slice(0, 5).map((m: any, i: number) => ({ ...map(m, 'movie', 'awards'), isWinner: i === 0 })),
+    localAwards: localAwards.results.slice(0, 5).map((m: any, i: number) => {
+        const item = map(m, 'movie', 'awards');
+        const isWinner = manualWinnerTitle ? item.title === manualWinnerTitle : i === 0;
+        return { ...item, isWinner };
+    }),
     awardYear: 2025, currentMonthName: monthName
   };
 }
 
 export async function getAwardMultiCeremonyData(type: string, lang: string = 'en-US', countryCode: string = 'US') {
   const year = 2025;
-  // If it's a specific country award (not oscars/black-reel)
   const data = await fetchFromTMDB('/discover/movie', { 
     primary_release_year: year.toString(), 
     with_origin_country: countryCode,
@@ -105,11 +140,11 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show', lang: 
     id: data.id, title: data.title || data.name, description: data.overview,
     image: `https://image.tmdb.org/t/p/original${data.backdrop_path || data.poster_path}`,
     poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
-    rating: data.vote_average, year: new Date(data.release_date || data.first_air_date).getFullYear(),
+    rating: data.vote_average || 0, year: new Date(data.release_date || data.first_air_date).getFullYear(),
     genres: data.genres.map((g: any) => g.name), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
     streamingProviders: providers, watchLink, collection: data.belongs_to_collection, trailerKey, imdb_id: data.imdb_id,
     cast: data.credits.cast.slice(0, 10).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
-    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average, year: new Date(m.release_date || m.first_air_date).getFullYear() }))
+    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average || 0, year: new Date(m.release_date || m.first_air_date).getFullYear() }))
   };
 }
 
@@ -119,7 +154,7 @@ export async function getActorOnPlatform(personId: string, platformId: string) {
   return {
     name: person.name,
     movies: data.results.map((m: any) => ({
-      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average
+      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average || 0
     }))
   };
 }
@@ -132,7 +167,7 @@ export async function getStudioDetails(id: string) {
     logo: data.logo_path ? `https://image.tmdb.org/t/p/w500${data.logo_path}` : null,
     description: data.description,
     movies: movies.results.slice(0, 20).map((m: any) => ({
-      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average
+      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average || 0
     }))
   };
 }
@@ -148,7 +183,7 @@ export async function getCollectionDetails(id: string) {
     name: data.name, description: data.overview, image: `https://image.tmdb.org/t/p/original${data.backdrop_path}`,
     bingeTime: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`,
     parts: partsWithRuntime.sort((a: any, b: any) => new Date(a.release_date).getTime() - new Date(b.release_date).getTime()).map((m: any) => ({
-      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average, description: m.overview, runtime: m.runtime
+      id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average || 0, description: m.overview, runtime: m.runtime
     }))
   };
 }
@@ -156,7 +191,7 @@ export async function getCollectionDetails(id: string) {
 export async function getPlatformGenreData(platformId: string, genreId: string) {
   const data = await fetchFromTMDB('/discover/movie', { with_watch_providers: platformId, watch_region: 'US', with_genres: genreId, sort_by: 'popularity.desc' });
   return data.results.slice(0, 20).map((m: any) => ({
-    id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average
+    id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date).getFullYear(), rating: m.vote_average || 0
   }));
 }
 
@@ -166,14 +201,14 @@ export async function getMonthlyReleases(year: string, month: string) {
   const data = await fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' });
   return data.results.map((m: any) => ({
     id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, 
-    year: new Date(m.release_date).getFullYear(), rating: m.vote_average, releaseDate: m.release_date
+    year: new Date(m.release_date).getFullYear(), rating: m.vote_average || 0, releaseDate: m.release_date
   })).sort((a: any, b: any) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()).slice(0, 20);
 }
 
 export async function getPersonBest(id: string) {
   const data = await fetchFromTMDB(`/person/${id}`, { append_to_response: 'combined_credits' });
   const best = data.combined_credits.cast.filter((m: any) => m.vote_count > 100).sort((a: any, b: any) => b.vote_average - a.vote_average).slice(0, 20).map((m: any) => ({
-    id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type: m.media_type, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average
+    id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type: m.media_type, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average || 0
   }));
   return { name: data.name, best };
 }
@@ -181,7 +216,7 @@ export async function getPersonBest(id: string) {
 export async function getPersonDetails(id: string) {
   const data = await fetchFromTMDB(`/person/${id}`, { append_to_response: 'combined_credits' });
   const credits = data.combined_credits.cast.sort((a: any, b: any) => (b.vote_count || 0) - (a.vote_count || 0)).slice(0, 15).map((m: any) => ({
-    id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type: m.media_type, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average
+    id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type: m.media_type, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average || 0
   }));
   return { id: data.id, name: data.name, biography: data.biography, birthday: data.birthday, place_of_birth: data.place_of_birth, image: `https://image.tmdb.org/t/p/h632${data.profile_path}`, known_for: data.known_for_department, credits };
 }
@@ -189,6 +224,6 @@ export async function getPersonDetails(id: string) {
 export async function getMediaByGenre(genreId: string, type: 'movie' | 'show') {
   const data = await fetchFromTMDB(`/discover/${type === 'movie' ? 'movie' : 'tv'}`, { with_genres: genreId, sort_by: 'popularity.desc', 'vote_count.gte': '100' });
   return data.results.slice(0, 20).map((m: any) => ({
-    id: m.id, title: m.title || m.name, type, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average, description: m.overview
+    id: m.id, title: m.title || m.name, type, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average || 0, description: m.overview
   }));
 }

@@ -1,7 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Metadata } from 'next';
 import { getMediaData, MediaItem } from '@/lib/tmdb';
 import { getCountryByLang, TOP_COUNTRIES } from '@/lib/countries';
+import { getTranslations } from '@/lib/translations';
+import RegionSelector from '@/components/RegionSelector';
+
+interface Props {
+  lang?: string;
+}
+
+export async function generateMetadata({ lang = 'en-US' }: Props): Promise<Metadata> {
+  const country = getCountryByLang(lang.split('-')[0]);
+  const t = getTranslations(lang);
+  return {
+    title: `${t.seoTitle} ${country.name}`,
+    description: `${t.seoDesc} ${country.name}. ${t.mostPopularReleases} ${country.name}.`,
+    openGraph: {
+      title: `${t.seoTitle} ${country.name}`,
+      description: `${t.seoDesc} ${country.name}.`,
+      images: ['/logo.png'],
+    }
+  };
+}
 
 function MediaCard({ item }: { item: MediaItem }) {
   return (
@@ -37,7 +58,7 @@ function MediaCard({ item }: { item: MediaItem }) {
   );
 }
 
-function Section({ title, items, id, subtitle, link }: { title: string, subtitle?: string, items: MediaItem[], id?: string, link?: string }) {
+function Section({ title, items, id, subtitle, link, viewAllText = '+ VIEW ALL' }: { title: string, subtitle?: string, items: MediaItem[], id?: string, link?: string, viewAllText?: string }) {
   if (items.length === 0) return null;
   return (
     <section className="mb-16 md:mb-24" id={id}>
@@ -45,7 +66,7 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
         {link ? (
           <Link href={link} className="group inline-block">
             <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-black uppercase italic inline-block group-hover:text-blue-600 transition-colors leading-tight">{title}</h2>
-            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-xs md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">+ VIEW ALL</span>
+            <span className="ml-0 md:ml-4 text-gray-400 font-black italic uppercase text-xs md:text-lg group-hover:text-blue-600 block md:inline mt-2 md:mt-0">{viewAllText}</span>
           </Link>
         ) : (
           <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-black uppercase italic inline-block leading-tight">{title}</h2>
@@ -64,7 +85,11 @@ function Section({ title, items, id, subtitle, link }: { title: string, subtitle
 
 export default async function Home({ lang = 'en-US' }: { lang?: string }) {
   const country = getCountryByLang(lang.split('-')[0]);
+  const t = getTranslations(lang);
   const { movies, shows, top2025, top2026Month, localAwards, currentMonthName } = await getMediaData(lang, country.code);
+
+  const topRegions = TOP_COUNTRIES.slice(0, 5);
+  const otherRegions = TOP_COUNTRIES.slice(5);
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
@@ -75,21 +100,19 @@ export default async function Home({ lang = 'en-US' }: { lang?: string }) {
                 <Image src="/logo.png" alt="MovieRec Logo" width={180} height={60} className="h-10 md:h-12 w-auto" priority />
             </Link>
             <Link href="/compare" className="bg-yellow-400 border-2 md:border-4 border-black text-black px-3 md:px-4 py-1 md:py-1.5 font-black text-[10px] md:text-sm uppercase italic tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all whitespace-nowrap">
-                Compare →
+                {t.compare} →
             </Link>
           </div>
           <nav className="flex items-center space-x-4 md:space-x-6 text-[10px] font-black uppercase tracking-widest overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
             {/* Country Selector */}
-            <div className="flex items-center gap-2 border-r-2 border-gray-200 pr-4">
-                <span className="text-gray-400 italic">Region:</span>
-                <Link href="/" className={`hover:text-blue-600 ${country.code === 'US' ? 'text-blue-600 underline' : ''}`}>US</Link>
-                <Link href="/fr" className={`hover:text-blue-600 ${country.code === 'FR' ? 'text-blue-600 underline' : ''}`}>FR</Link>
-                <Link href="/es" className={`hover:text-blue-600 ${country.code === 'ES' ? 'text-blue-600 underline' : ''}`}>ES</Link>
-                <Link href="/ko" className={`hover:text-blue-600 ${country.code === 'KR' ? 'text-blue-600 underline' : ''}`}>KR</Link>
-                <Link href="/hi" className={`hover:text-blue-600 ${country.code === 'IN' ? 'text-blue-600 underline' : ''}`}>IN</Link>
-            </div>
-            <Link href="/best/netflix/03" className="hover:text-red-600 whitespace-nowrap">Netflix</Link>
-            <Link href="/best/max/03" className="hover:text-blue-600 whitespace-nowrap">Max</Link>
+            <RegionSelector 
+                currentCountry={country}
+                topCountries={topRegions}
+                otherCountries={otherRegions}
+                t={t}
+            />
+            <Link href="/best/netflix/03" className="hover:text-red-600 whitespace-nowrap">{t.netflix}</Link>
+            <Link href="/best/max/03" className="hover:text-blue-600 whitespace-nowrap">{t.max}</Link>
           </nav>
         </div>
       </header>
@@ -99,36 +122,38 @@ export default async function Home({ lang = 'en-US' }: { lang?: string }) {
         <Section 
           id="oscars"
           title={country.awardCeremony} 
-          subtitle={`${country.name} Local Cinema // 2026 Winners & Nominees`}
+          subtitle={`${country.name} Local Cinema // 2026 ${t.winnersAndNominees}`}
           items={localAwards} 
           link={`/awards/${country.code.toLowerCase()}`}
+          viewAllText={t.viewAll}
         />
 
         <Section 
           id="2026"
-          title={`Top 2026 Movies This ${currentMonthName}`} 
-          subtitle={`Most Popular Releases in ${country.name} (${currentMonthName})`}
+          title={`${t.topMoviesThisMonth} ${currentMonthName}`} 
+          subtitle={`${t.mostPopularReleases} ${country.name} (${currentMonthName})`}
           items={top2026Month} 
           link={`/calendar/2026/03`}
+          viewAllText={t.viewAll}
         />
 
         <Section 
           id="2025"
           title="Top from 2025" 
-          subtitle="The Absolute Best Movies of the Previous Year"
+          subtitle={t.theAbsoluteBestMovies}
           items={top2025} 
         />
 
         <div id="movies">
           <Section 
-            title={`Top Box Office in ${country.name}`} 
+            title={`${t.topBoxOffice} ${country.name}`} 
             items={movies.filter(m => m.category === 'box-office')} 
           />
         </div>
 
         <div id="shows">
           <Section 
-            title="Trending Shows" 
+            title={t.trendingShows} 
             items={shows.filter(s => s.category === 'streaming')} 
           />
         </div>

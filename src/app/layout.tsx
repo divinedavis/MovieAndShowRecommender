@@ -1,56 +1,24 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://movies.unittap.com"),
+  metadataBase: new URL('https://movies.unittap.com'),
   title: {
-    default: "MovieRec",
-    template: "%s | MovieRec",
+    default: 'MovieRec',
+    template: '%s | MovieRec',
   },
-  description: "The world's most optimized movie and show recommender. Find what to watch in 2026, track award winners, and explore cinematic franchises.",
-  alternates: {
-    canonical: "/",
-    languages: {
-      "en-US": "/",
-      "es-ES": "/es",
-      "fr-FR": "/fr",
-      "de-DE": "/de",
-      "hi-IN": "/hi",
-    },
-  },
-  openGraph: {
-    title: "MovieRec",
-    description: "The ultimate movie and show discovery engine.",
-    url: "https://movies.unittap.com",
-    siteName: "MovieRec",
-    images: [
-      {
-        url: "/logo.png",
-        width: 1200,
-        height: 630,
-        alt: "MovieRec Logo",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "MovieRec",
-    description: "The ultimate movie and show discovery engine.",
-    images: ["/logo.png"],
-  },
+  description: 'The world\'s most optimized movie and show recommender.',
 };
 
 export default function RootLayout({
@@ -59,11 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

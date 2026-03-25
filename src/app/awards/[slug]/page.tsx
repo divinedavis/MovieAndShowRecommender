@@ -1,30 +1,48 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Metadata } from 'next';
 import { getAwardMultiCeremonyData } from '@/lib/tmdb';
 import { getCountryByCode } from '@/lib/countries';
+import { getTranslations } from '@/lib/translations';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const isGlobal = slug === 'oscars' || slug === 'black-reel' || slug === 'best-picture';
+  const country = isGlobal ? null : getCountryByCode(slug);
+  const lang = country?.lang || 'en-US';
+  const t = getTranslations(lang);
+  const name = country ? country.name : (slug === 'black-reel' ? 'Black Reel' : 'Oscars');
+  
+  return {
+    title: `${t.awardsSeoTitle} ${name}`,
+    description: `${t.awardsSeoDesc} ${name}.`,
+  };
+}
+
 export default async function AwardCeremonyPage({ params }: Props) {
   const { slug } = await params;
   
-  // Logic to determine if we show global (oscars/bra) or local country awards
   const isGlobal = slug === 'oscars' || slug === 'black-reel' || slug === 'best-picture';
   const type = isGlobal ? (slug === 'black-reel' ? 'black-reel' : 'oscars') : slug.toUpperCase();
   
   const country = isGlobal ? null : getCountryByCode(slug);
-  const ceremonies = await getAwardMultiCeremonyData(type, 'en-US', country?.code || 'US');
+  const lang = country?.lang || 'en-US';
+  const t = getTranslations(lang);
+  
+  const ceremonies = await getAwardMultiCeremonyData(type, lang, country?.code || 'US');
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
       <header className="mb-20">
-        <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO DISCOVERY</Link>
+        <Link href={lang === 'en-US' ? '/' : `/${lang.split('-')[0]}`} className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">{t.backToDiscovery}</Link>
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
           {country ? `${country.name} Cinema Awards` : (type === 'oscars' ? 'Mainstream Cinema Awards' : 'Black Excellence in Cinema')}
         </h1>
-        <p className="text-xl md:text-2xl font-black text-gray-400 uppercase italic">2026 CEREMONIES // BEST PICTURE WINNERS & NOMINEES</p>
+        <p className="text-xl md:text-2xl font-black text-gray-400 uppercase italic">2026 CEREMONIES // ${t.winnersAndNominees}</p>
         <div className="w-full h-4 bg-black mt-8"></div>
       </header>
 
