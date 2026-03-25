@@ -16,9 +16,22 @@ export interface MediaItem {
   isWinner?: boolean;
 }
 
-// Manual Best Picture winners for major countries (2025 releases announced in 2026)
+// REAL 2026 OSCAR NOMINEES (Movies released in 2025)
+const OSCAR_2026_IDS = [
+  { id: 1054867, isWinner: true }, // One Battle After Another
+  { id: 701387, isWinner: false }, // Bugonia
+  { id: 911430, isWinner: false }, // F1
+  { id: 1062722, isWinner: false }, // Frankenstein
+  { id: 858024, isWinner: false }, // Hamnet
+  { id: 1317288, isWinner: false }, // Marty Supreme
+  { id: 1233413, isWinner: false }, // Sinners
+  { id: 1241983, isWinner: false }, // Train Dreams
+  { id: 1124566, isWinner: false }, // Sentimental Value
+  { id: 1220564, isWinner: false }, // The Secret Agent
+];
+
+// Manual Best Picture winners for other major countries
 const MANUAL_WINNERS: Record<string, string> = {
-  'US': 'One Battle After Another',
   'FR': 'Emilia Pérez',
   'KR': 'The Past',
   'IN': 'Stree 2'
@@ -67,24 +80,16 @@ export async function getMediaData(lang: string = 'en-US', countryCode: string =
   const startDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
   const endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`;
 
-  const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, localAwards] = await Promise.all([
-    fetchFromTMDB('/discover/movie', { 
-      primary_release_year: currentYear.toString(), 
-      region: countryCode,
-      sort_by: 'revenue.desc', 
-      'vote_count.gte': '10' 
-    }, lang),
+  const [boxOffice, trendingMovies, popularShows, trendingShows, data2025, data2026Month, localAwardsRaw] = await Promise.all([
+    fetchFromTMDB('/discover/movie', { primary_release_year: currentYear.toString(), region: countryCode, sort_by: 'revenue.desc', 'vote_count.gte': '10' }, lang),
     fetchFromTMDB('/trending/movie/week', { region: countryCode }, lang),
     fetchFromTMDB('/tv/popular', { watch_region: countryCode }, lang),
     fetchFromTMDB('/trending/tv/week', { region: countryCode }, lang),
     fetchFromTMDB('/discover/movie', { primary_release_year: '2025', sort_by: 'popularity.desc' }, lang),
     fetchFromTMDB('/discover/movie', { 'primary_release_date.gte': startDate, 'primary_release_date.lte': endDate, sort_by: 'popularity.desc' }, lang),
-    fetchFromTMDB('/discover/movie', { 
-      primary_release_year: '2025', 
-      with_origin_country: countryCode,
-      sort_by: 'vote_average.desc', 
-      'vote_count.gte': '100' 
-    }, lang)
+    countryCode === 'US' 
+      ? Promise.all(OSCAR_2026_IDS.map(item => fetchFromTMDB(`/movie/${item.id}`, {}, lang)))
+      : fetchFromTMDB('/discover/movie', { primary_release_year: '2025', with_origin_country: countryCode, sort_by: 'vote_average.desc', 'vote_count.gte': '100' }, lang).then(d => d.results)
   ]);
 
   const map = (m: any, type: 'movie' | 'show', cat: any): MediaItem => ({
@@ -95,37 +100,51 @@ export async function getMediaData(lang: string = 'en-US', countryCode: string =
   });
 
   const manualWinnerTitle = MANUAL_WINNERS[countryCode];
+  
+  let localAwards: MediaItem[] = [];
+  if (countryCode === 'US') {
+    localAwards = localAwardsRaw.slice(0, 5).map((m: any) => {
+      const item = map(m, 'movie', 'awards');
+      const nominee = OSCAR_2026_IDS.find(n => n.id === m.id);
+      return { ...item, isWinner: nominee?.isWinner || false };
+    });
+  } else {
+    localAwards = (localAwardsRaw as any[]).slice(0, 5).map((m: any, i: number) => {
+      const item = map(m, 'movie', 'awards');
+      const isWinner = manualWinnerTitle ? item.title === manualWinnerTitle : i === 0;
+      return { ...item, isWinner };
+    });
+  }
 
   return {
     movies: [...boxOffice.results.slice(0, 5).map((m: any) => map(m, 'movie', 'box-office')), ...trendingMovies.results.slice(0, 5).map((m: any) => map(m, 'movie', 'streaming'))],
     shows: [...popularShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'box-office')), ...trendingShows.results.slice(0, 5).map((m: any) => map(m, 'show', 'streaming'))],
     top2025: data2025.results.slice(0, 5).map((m: any) => map(m, 'movie', 'upcoming')),
     top2026Month: data2026Month.results.slice(0, 5).map((m: any) => map(m, 'movie', '2026')),
-    localAwards: localAwards.results.slice(0, 5).map((m: any, i: number) => {
-        const item = map(m, 'movie', 'awards');
-        const isWinner = manualWinnerTitle ? item.title === manualWinnerTitle : i === 0;
-        return { ...item, isWinner };
-    }),
+    localAwards,
     awardYear: 2025, currentMonthName: monthName
   };
 }
 
 export async function getAwardMultiCeremonyData(type: string, lang: string = 'en-US', countryCode: string = 'US') {
-  const year = 2025;
-  const data = await fetchFromTMDB('/discover/movie', { 
-    primary_release_year: year.toString(), 
-    with_origin_country: countryCode,
-    sort_by: 'vote_average.desc', 
-    'vote_count.gte': '50' 
-  }, lang);
+  if (countryCode === 'US' && type === 'oscars') {
+    const movies = await Promise.all(OSCAR_2026_IDS.map(item => fetchFromTMDB(`/movie/${item.id}`, {}, lang)));
+    return [{
+      name: 'Best Picture',
+      nominees: movies.map(m => {
+        const nominee = OSCAR_2026_IDS.find(n => n.id === m.id);
+        return { id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: nominee?.isWinner || false };
+      })
+    }];
+  }
 
+  const data = await fetchFromTMDB('/discover/movie', { primary_release_year: '2025', with_origin_country: countryCode, sort_by: 'vote_average.desc', 'vote_count.gte': '50' }, lang);
   const map = (items: any[], name: string) => ({ 
     name, 
     nominees: items.map((m: any, i: number) => ({ 
       id: m.id, title: m.title, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: 2025, isWinner: i === 0 
     })) 
   });
-
   return [map(data.results.slice(0, 10), `${type} Winners & Nominees`)];
 }
 
