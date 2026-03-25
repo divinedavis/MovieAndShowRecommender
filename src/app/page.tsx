@@ -16,6 +16,7 @@ export async function generateMetadata({ lang = 'en-US' }: Props): Promise<Metad
   return {
     title: `${t.seoTitle} ${country.name}`,
     description: `${t.seoDesc} ${country.name}. ${t.mostPopularReleases} ${country.name}.`,
+    alternates: { canonical: 'https://movies.unittap.com' },
     openGraph: {
       title: `${t.seoTitle} ${country.name}`,
       description: `${t.seoDesc} ${country.name}.`,

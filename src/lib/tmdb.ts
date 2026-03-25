@@ -246,3 +246,18 @@ export async function getMediaByGenre(genreId: string, type: 'movie' | 'show') {
     id: m.id, title: m.title || m.name, type, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, year: new Date(m.release_date || m.first_air_date).getFullYear(), rating: m.vote_average || 0, description: m.overview
   }));
 }
+
+export async function getMediaForSitemap() {
+  // Fetch more popular movies and shows for a larger index
+  const [movies1, movies2, shows1, shows2] = await Promise.all([
+    fetchFromTMDB('/movie/popular', { page: '1' }),
+    fetchFromTMDB('/movie/popular', { page: '2' }),
+    fetchFromTMDB('/tv/popular', { page: '1' }),
+    fetchFromTMDB('/tv/popular', { page: '2' }),
+  ]);
+
+  return {
+    movies: [...movies1.results, ...movies2.results].map((m: any) => ({ id: m.id, type: 'movie' })),
+    shows: [...shows1.results, ...shows2.results].map((m: any) => ({ id: m.id, type: 'show' })),
+  };
+}

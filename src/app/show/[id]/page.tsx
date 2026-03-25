@@ -10,10 +10,26 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getMediaDetails(id, 'show');
+  const baseUrl = 'https://movies.unittap.com';
   return {
     title: `Watch ${details.title} (${details.year}) - Stream & Full Cast`,
     description: details.description.substring(0, 160),
-    openGraph: { images: [details.image] }
+    alternates: {
+      canonical: `${baseUrl}/show/${id}`,
+      languages: {
+        'en-US': `${baseUrl}/show/${id}`,
+        'fr-FR': `${baseUrl}/fr/show/${id}`,
+        'es-ES': `${baseUrl}/es/show/${id}`,
+        'ko-KR': `${baseUrl}/ko/show/${id}`,
+        'hi-IN': `${baseUrl}/hi/show/${id}`,
+      },
+    },
+    openGraph: { 
+      title: details.title,
+      description: details.description.substring(0, 160),
+      images: [details.image],
+      type: 'video.tv_show'
+    }
   };
 }
 
@@ -25,15 +41,39 @@ export default async function ShowPage({ params }: Props) {
     ? `https://www.youtube.com/watch?v=${details.trailerKey}`
     : null;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TVSeries',
+    name: details.title,
+    description: details.description,
+    image: details.image,
+    datePublished: `${details.year}-01-01`,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: details.rating,
+      bestRating: '10',
+      ratingCount: '1000'
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="relative h-[50vh] md:h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
         <div className="absolute bottom-0 left-0 p-6 md:p-10 max-w-7xl mx-auto w-full">
+          <nav className="flex text-white/60 text-[10px] font-black uppercase tracking-widest mb-4 gap-2 flex-wrap">
+            <Link href="/" className="hover:text-white">Home</Link>
+            <span>/</span>
+            <span className="text-white">{details.title}</span>
+          </nav>
           <h1 className="text-4xl md:text-7xl font-black text-white mb-6 italic tracking-tighter shadow-2xl leading-tight break-words">{details.title.toUpperCase()}</h1>
           <div className="flex flex-wrap items-center gap-4 md:gap-6 text-white font-black text-[10px] md:text-xs uppercase tracking-widest">
-            <span className="bg-yellow-400 text-black px-3 py-1.5 rounded font-black text-sm italic">{details.rating.toFixed(1)} IMDB</span>
+            <span className="bg-yellow-400 text-black px-3 py-1.5 rounded font-black text-sm italic">{(details.rating || 0).toFixed(1)} IMDB</span>
             <span>{details.year}</span>
             <div className="flex gap-2 md:gap-3 flex-wrap">
               {details.genres.map((g: string) => (
