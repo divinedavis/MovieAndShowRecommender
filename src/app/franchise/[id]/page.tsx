@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCollectionDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
+import { generateWatchOrderSchema } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -10,18 +11,35 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getCollectionDetails(id);
+  const baseUrl = 'https://movies.unittap.com';
+
   return {
-    title: `Best ${details.name} Watch Order & Timeline (2026 Updated)`,
-    description: `The ultimate chronological guide to the ${details.name}. Watch the entire franchise in the correct order with our 2026 timeline. Total binge time: ${details.bingeTime}.`
+    title: `${details.name} Chronological Watch Order & Timeline (2026)`,
+    description: `How to watch the ${details.name} movies in chronological order. Total binge time: ${details.bingeTime}. Full timeline, rankings, and where to stream the entire franchise.`,
+    keywords: [`${details.name} watch order`, `${details.name} chronological order`, `${details.name} movies timeline`, `best way to watch ${details.name}`],
+    alternates: {
+      canonical: `${baseUrl}/franchise/${id}`,
+    },
+    openGraph: {
+      title: `${details.name} | The Ultimate Watch Order`,
+      description: `Full chronological timeline for the ${details.name} movies.`,
+      images: [details.image],
+      type: 'website'
+    }
   };
 }
 
 export default async function FranchisePage({ params }: Props) {
   const { id } = await params;
   const details = await getCollectionDetails(id);
+  const jsonLd = generateWatchOrderSchema(details);
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="mb-20 flex flex-col items-center text-center">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4">← BACK TO DISCOVERY</Link>
         <h1 className="text-6xl md:text-9xl font-black italic tracking-tighter uppercase mb-6">{details.name}</h1>
