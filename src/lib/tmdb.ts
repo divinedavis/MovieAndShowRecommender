@@ -149,7 +149,7 @@ export async function getAwardMultiCeremonyData(type: string, lang: string = 'en
 }
 
 export async function getMediaDetails(id: string, type: 'movie' | 'show', lang: string = 'en-US') {
-  const data = await fetchFromTMDB(`/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { append_to_response: 'similar,credits,watch/providers,videos' }, lang);
+  const data = await fetchFromTMDB(`/${type === 'movie' ? 'movie' : 'tv'}/${id}`, { append_to_response: 'similar,credits,watch/providers,videos,reviews' }, lang);
   const providers = data['watch/providers']?.results?.US?.flatrate?.map((p: any) => p.provider_name) || [];
   const watchLink = data['watch/providers']?.results?.US?.link || null;
   const video = data.videos?.results?.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || data.videos?.results?.[0];
@@ -163,7 +163,8 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show', lang: 
     genres: data.genres.map((g: any) => g.name), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
     streamingProviders: providers, watchLink, collection: data.belongs_to_collection, trailerKey, imdb_id: data.imdb_id,
     cast: data.credits.cast.slice(0, 10).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
-    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average || 0, year: new Date(m.release_date || m.first_air_date).getFullYear() }))
+    similar: data.similar.results.slice(0, 10).map((m: any) => ({ id: m.id, title: m.title || m.name, image: `https://image.tmdb.org/t/p/w500${m.poster_path}`, type, rating: m.vote_average || 0, year: new Date(m.release_date || m.first_air_date).getFullYear() })),
+    reviews: data.reviews?.results?.slice(0, 5).map((r: any) => ({ author: r.author, content: r.content, rating: r.author_details?.rating, id: r.id })) || []
   };
 }
 

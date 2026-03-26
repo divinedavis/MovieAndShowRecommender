@@ -10,10 +10,27 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getPersonDetails(id);
+  const baseUrl = 'https://movies.unittap.com';
+  
   return {
-    title: `${details.name} - Filmography, Awards & Career Ranking`,
-    description: details.biography?.substring(0, 160) || `Explore the movies and TV shows of ${details.name}.`,
-    openGraph: { images: [details.image] }
+    title: `${details.name} - Filmography, Biography & Career Ranking`,
+    description: `Explore ${details.name}'s movies, career milestones, and full filmography. ${details.biography?.substring(0, 120)}...`,
+    keywords: [`${details.name} movies`, `${details.name} filmography`, `${details.name} biography`, `${details.name} awards`, `${details.name} career`],
+    alternates: {
+      canonical: `${baseUrl}/person/${id}`,
+    },
+    openGraph: { 
+      title: `${details.name} | UnitTap Movies`,
+      description: `Full filmography and biography of ${details.name}.`,
+      images: [details.image],
+      type: 'profile'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: details.name,
+      description: `Full filmography and biography of ${details.name}.`,
+      images: [details.image],
+    }
   };
 }
 
