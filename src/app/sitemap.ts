@@ -56,6 +56,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const platforms = ['netflix', 'max', 'disney', 'amazon', 'hulu', 'paramount', 'apple'];
+  const genres = ['horror', 'action', 'comedy', 'sci-fi', 'drama', 'animation'];
+  
+  const bestUrls = platforms.flatMap(p => 
+    genres.map(g => ({
+      url: `${baseUrl}/best/${p}-${g}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  );
+
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -63,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...expandedShows,
     ...langUrls,
     ...awardUrls,
-    ...genreUrls
+    ...genreUrls,
+    ...bestUrls
   ];
 }

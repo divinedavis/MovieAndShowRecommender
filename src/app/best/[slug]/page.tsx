@@ -15,9 +15,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [p, g] = slug.split('-');
   const platform = p.charAt(0).toUpperCase() + p.slice(1);
   const genre = g.charAt(0).toUpperCase() + g.slice(1);
+  const currentMonth = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  
   return {
-    title: `Best ${genre} Movies on ${platform} (March 2026) - Top Rated Streaming`,
-    description: `The definitive guide to the best ${genre} movies currently streaming on ${platform}. Daily updated rankings and where to watch.`
+    title: `15+ Best ${genre} Movies on ${platform} (${currentMonth}) - Ranked & Reviewed`,
+    description: `Looking for the best ${genre} movies on ${platform}? Our expert-ranked list for ${currentMonth} features the top-rated titles you can stream right now.`,
+    keywords: [`best ${genre} movies on ${platform}`, `top ${genre} movies ${platform}`, `what ${genre} to watch on ${platform}`, `${platform} ${genre} rankings`]
   };
 }
 
@@ -27,9 +30,28 @@ export default async function BestPage({ params }: Props) {
   const platformId = PLATFORM_MAP[p] || '8';
   const genreId = GENRE_MAP[g] || '27';
   const movies = await getPlatformGenreData(platformId, genreId);
+  
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: movies.map((m: any, i: number) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Movie',
+        url: `https://movies.unittap.com/movie/${m.id}`,
+        name: m.title,
+        image: m.image
+      }
+    }))
+  };
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="mb-20">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO HOME</Link>
         <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase mb-4">BEST {g} ON {p}</h1>
