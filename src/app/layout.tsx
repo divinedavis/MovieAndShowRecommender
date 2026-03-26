@@ -32,6 +32,12 @@ export default function RootLayout({
       <head>
         {/* Replace with your actual GA ID in production */}
         <GoogleAnalytics GA_MEASUREMENT_ID="G-L2X7Z8L09Y" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="RSS Feed for UnitTap Movies"
+          href="/feed.xml"
+        />
       </head>
       <body className="antialiased">{children}</body>
     </html>
