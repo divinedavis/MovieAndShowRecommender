@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getPersonDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
+import { LinkifyDescription } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -54,7 +55,11 @@ export default async function PersonPage({ params }: Props) {
           </div>
           <div className="max-w-3xl">
             <h2 className="text-2xl font-black uppercase italic mb-4 border-b-4 border-black inline-block">Biography</h2>
-            <p className="text-xl font-medium leading-relaxed">{details.biography || "No biography available."}</p>
+            <p className="text-xl font-medium leading-relaxed">
+                {details.biography 
+                  ? LinkifyDescription(details.biography, details.credits.map((c: any) => ({ id: c.id, name: c.title, type: c.type })), id)
+                  : "No biography available."}
+            </p>
           </div>
         </div>
       </header>

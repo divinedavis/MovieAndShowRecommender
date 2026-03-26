@@ -1,19 +1,50 @@
 import React from 'react';
 import Link from 'next/link';
 
+interface Entity {
+  id: number | string;
+  name: string;
+  type: 'movie' | 'person' | 'show';
+}
+
 /**
- * Automatically wraps movie/person names with Links.
- * This is a simplified version; in production, you'd use a more robust
- * entity extractor or a predefined list of high-value keywords.
+ * Automatically wraps entity names with Links within a text string.
  */
-export function LinkifyDescription(text: string, currentId: string) {
+export function LinkifyDescription(text: string, entities: Entity[], currentId: string) {
   if (!text) return null;
 
-  // For now, we'll implement a logic that can be expanded with real entity lists.
-  // To keep it safe and autonomous, we'll focus on common movie patterns
-  // or use the 'cast' names if provided.
+  // Sort entities by name length descending to avoid partial matches 
+  // (e.g., "Tom Cruise" vs "Tom")
+  const sortedEntities = [...entities]
+    .filter(e => e.id.toString() !== currentId.toString())
+    .sort((a, b) => b.name.length - a.name.length);
+
+  if (sortedEntities.length === 0) return text;
+
+  // Create a regex pattern from all entity names
+  const pattern = sortedEntities
+    .map(e => e.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
   
-  return text; // Placeholder for logic
+  const regex = new RegExp(`\\b(${pattern})\\b`, 'gi');
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    const entity = sortedEntities.find(e => e.name.toLowerCase() === part.toLowerCase());
+    if (entity) {
+      const href = entity.type === 'person' ? `/person/${entity.id}` : `/${entity.type}/${entity.id}`;
+      return (
+        <Link 
+          key={i} 
+          href={href} 
+          className="text-blue-600 hover:underline font-bold decoration-2 underline-offset-4"
+        >
+          {part}
+        </Link>
+      );
+    }
+    return part;
+  });
 }
 
 export function generateWatchOrderSchema(collection: any) {

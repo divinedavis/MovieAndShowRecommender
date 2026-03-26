@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getMediaDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
+import { LinkifyDescription } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -185,7 +186,9 @@ export default async function MoviePage({ params }: Props) {
                     <Link href={`/after/${id}`} className="bg-black text-white text-[10px] font-black px-4 py-2 uppercase hover:bg-blue-600 transition border-2 border-black whitespace-nowrap">Movies Like This →</Link>
                 </div>
             </div>
-            <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">{details.description}</p>
+            <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">
+                {LinkifyDescription(details.description, details.cast.map((c: any) => ({ id: c.id, name: c.name, type: 'person' })), id)}
+            </p>
           </section>
 
           <section>
