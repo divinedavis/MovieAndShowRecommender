@@ -45,7 +45,7 @@ function MediaCard({ item }: { item: MediaItem }) {
       <div className="relative aspect-[2/3] w-full border-b-4 border-black">
         <Image
           src={item.image}
-          alt={`Poster for ${item.title}`}
+          alt={`${item.title} (${item.year}) - Watch on UnitTap Movies`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
