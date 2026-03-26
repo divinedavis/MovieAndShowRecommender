@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const langUrls = ['es', 'fr', 'de', 'hi', 'ko', 'zh', 'pt'].map(lang => ({
+  const langUrls = ['es', 'fr', 'de', 'hi', 'ko', 'zh', 'pt', 'ja'].map(lang => ({
     url: `${baseUrl}/${lang}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
