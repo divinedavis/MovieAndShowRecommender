@@ -13,10 +13,22 @@ interface Props {
 export async function generateMetadata({ lang = 'en-US' }: Props): Promise<Metadata> {
   const country = getCountryByLang(lang.split('-')[0]);
   const t = getTranslations(lang);
+  const baseUrl = 'https://movies.unittap.com';
+  
   return {
     title: `${t.seoTitle} ${country.name}`,
     description: `${t.seoDesc} ${country.name}. ${t.mostPopularReleases} ${country.name}.`,
-    alternates: { canonical: 'https://movies.unittap.com' },
+    alternates: { 
+      canonical: lang === 'en-US' ? baseUrl : `${baseUrl}/${lang.split('-')[0]}`,
+      languages: {
+        'x-default': baseUrl,
+        'en-US': baseUrl,
+        'fr-FR': `${baseUrl}/fr`,
+        'es-ES': `${baseUrl}/es`,
+        'ko-KR': `${baseUrl}/ko`,
+        'hi-IN': `${baseUrl}/hi`,
+      }
+    },
     openGraph: {
       title: `${t.seoTitle} ${country.name}`,
       description: `${t.seoDesc} ${country.name}.`,
