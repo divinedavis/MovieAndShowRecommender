@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getMediaDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
+import { LinkifyDescription } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -13,8 +14,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = 'https://movies.unittap.com';
   
   return {
-    title: `Watch ${details.title} (${details.year}) - Release Date, Cast & Where to Stream`,
-    description: details.description.substring(0, 160),
+    title: `${details.title} (${details.year}) - Watch Online, Cast, Reviews & Trailer`,
+    description: `Watch ${details.title} online. ${details.description.substring(0, 120)}... Check out the cast, user reviews, and where to stream ${details.title} on Netflix, Max, and more.`,
+    keywords: [`${details.title} movie`, `${details.title} cast`, `${details.title} reviews`, `where to watch ${details.title}`, `stream ${details.title}`],
     alternates: {
       canonical: `${baseUrl}/movie/${id}`,
       languages: {
@@ -26,10 +28,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
     openGraph: { 
-      title: details.title,
+      title: `${details.title} (${details.year}) | UnitTap Movies`,
       description: details.description.substring(0, 160),
       images: [details.image],
       type: 'video.movie'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: details.title,
+      description: details.description.substring(0, 160),
+      images: [details.image],
     }
   };
 }
@@ -42,30 +50,97 @@ export default async function MoviePage({ params }: Props) {
     ? `https://www.youtube.com/watch?v=${details.trailerKey}`
     : null;
 
-  const jsonLd = {
+  const jsonLd: any = {
     '@context': 'https://schema.org',
     '@type': 'Movie',
     name: details.title,
     description: details.description,
     image: details.image,
     datePublished: `${details.year}-01-01`,
+    genre: details.genres,
+    duration: details.runtime ? `PT${details.runtime}M` : undefined,
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: details.rating,
       bestRating: '10',
-      ratingCount: '1000'
+      ratingCount: String(details.voteCount)
     },
     actor: details.cast.slice(0, 5).map((c: any) => ({
       '@type': 'Person',
-      name: c.name
+      name: c.name,
+      url: `https://movies.unittap.com/person/${c.id}`
     }))
   };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Where can I watch ${details.title} online?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: details.streamingProviders.length > 0 
+            ? `You can stream ${details.title} on ${details.streamingProviders.join(', ')}. Check our guide for full streaming details.`
+            : `Currently, ${details.title} streaming availability varies by region. Check Netflix, Max, and Amazon Prime for the latest updates.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Is ${details.title} on Netflix?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: details.streamingProviders.includes('Netflix') 
+            ? `Yes, ${details.title} is currently available for streaming on Netflix.`
+            : `No, ${details.title} is not currently on Netflix. It may be available on other platforms like Max or Disney+.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `When was ${details.title} released?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} was released in ${details.year}.`
+        }
+      }
+    ]
+  };
+
+  if (details.trailerKey) {
+    jsonLd.video = {
+      '@type': 'VideoObject',
+      name: `${details.title} Official Trailer`,
+      description: `Official trailer for ${details.title}`,
+      thumbnailUrl: details.image,
+      uploadDate: `${details.year}-01-01`,
+      contentUrl: trailerUrl,
+      embedUrl: `https://www.youtube.com/embed/${details.trailerKey}`
+    };
+  }
+
+  if (details.reviews.length > 0) {
+    jsonLd.review = details.reviews.map((r: any) => ({
+      '@type': 'Review',
+      author: { '@type': 'Person', name: r.author },
+      reviewBody: r.content.substring(0, 200),
+      reviewRating: r.rating ? {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: '10'
+      } : undefined
+    }));
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="relative h-[50vh] md:h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
@@ -111,7 +186,9 @@ export default async function MoviePage({ params }: Props) {
                     <Link href={`/after/${id}`} className="bg-black text-white text-[10px] font-black px-4 py-2 uppercase hover:bg-blue-600 transition border-2 border-black whitespace-nowrap">Movies Like This →</Link>
                 </div>
             </div>
-            <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">{details.description}</p>
+            <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">
+                {LinkifyDescription(details.description, details.cast.map((c: any) => ({ id: c.id, name: c.name, type: 'person' })), id)}
+            </p>
           </section>
 
           <section>
@@ -128,6 +205,23 @@ export default async function MoviePage({ params }: Props) {
               ))}
             </div>
           </section>
+
+          {details.reviews.length > 0 && (
+            <section>
+                <h2 className="text-2xl md:text-3xl font-black mb-8 italic tracking-tight border-l-8 border-blue-600 pl-6 uppercase">Community Reviews</h2>
+                <div className="space-y-6">
+                    {details.reviews.map((r: any) => (
+                        <div key={r.id} className="bg-white p-6 rounded-2xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="font-black text-blue-600 uppercase text-xs tracking-widest">{r.author}</span>
+                                {r.rating && <span className="bg-yellow-400 text-black px-2 py-1 rounded font-black text-[10px] italic">{r.rating}/10</span>}
+                            </div>
+                            <p className="text-gray-700 text-sm leading-relaxed line-clamp-4">{r.content}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+          )}
 
           {details.collection && (
             <section className="bg-blue-600 p-6 md:p-10 rounded-2xl md:rounded-3xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white">
@@ -167,6 +261,14 @@ export default async function MoviePage({ params }: Props) {
             >
               WATCH NOW
             </a>
+          </div>
+
+          <div className="bg-yellow-400 p-6 md:p-8 rounded-2xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+             <h3 className="font-black mb-4 uppercase text-xs tracking-widest">SHARE THIS PAGE</h3>
+             <div className="flex gap-2">
+                <button className="flex-1 bg-white border-2 border-black p-2 font-black text-[10px] uppercase hover:bg-black hover:text-white transition">Copy Link</button>
+                <button className="flex-1 bg-blue-400 border-2 border-black p-2 font-black text-[10px] uppercase hover:bg-black hover:text-white transition">Twitter</button>
+             </div>
           </div>
 
           <div>
