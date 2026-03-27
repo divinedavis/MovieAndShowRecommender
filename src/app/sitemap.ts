@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const langUrls = ['es', 'fr', 'de', 'hi', 'ko', 'zh', 'pt'].map(lang => ({
+  const langUrls = ['es', 'fr', 'de', 'hi', 'ko', 'zh', 'pt', 'ja'].map(lang => ({
     url: `${baseUrl}/${lang}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
@@ -42,12 +42,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const genreUrls = [
+    { id: 28, name: 'action' },
+    { id: 35, name: 'comedy' },
+    { id: 18, name: 'drama' },
+    { id: 27, name: 'horror' },
+    { id: 878, name: 'sci-fi' },
+    { id: 53, name: 'thriller' }
+  ].map(g => ({
+    url: `${baseUrl}/genre/${g.name}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  const platforms = ['netflix', 'max', 'disney', 'amazon', 'hulu', 'paramount', 'apple'];
+  const genres = ['horror', 'action', 'comedy', 'sci-fi', 'drama', 'animation'];
+  
+  const bestUrls = platforms.flatMap(p => 
+    genres.map(g => ({
+      url: `${baseUrl}/best/${p}-${g}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  );
+
+  const streamingUrls = platforms.map(p => ({
+    url: `${baseUrl}/streaming/new-on-${p}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }));
+
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
     ...expandedMovies,
     ...expandedShows,
     ...langUrls,
-    ...awardUrls
+    ...awardUrls,
+    ...genreUrls,
+    ...bestUrls,
+    ...streamingUrls
   ];
 }

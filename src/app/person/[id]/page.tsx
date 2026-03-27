@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getPersonDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
+import { LinkifyDescription } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -10,10 +11,27 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getPersonDetails(id);
+  const baseUrl = 'https://movies.unittap.com';
+  
   return {
-    title: `${details.name} - Filmography, Awards & Career Ranking`,
-    description: details.biography?.substring(0, 160) || `Explore the movies and TV shows of ${details.name}.`,
-    openGraph: { images: [details.image] }
+    title: `${details.name} - Filmography, Biography & Career Ranking`,
+    description: `Explore ${details.name}'s movies, career milestones, and full filmography. ${details.biography?.substring(0, 120)}...`,
+    keywords: [`${details.name} movies`, `${details.name} filmography`, `${details.name} biography`, `${details.name} awards`, `${details.name} career`],
+    alternates: {
+      canonical: `${baseUrl}/person/${id}`,
+    },
+    openGraph: { 
+      title: `${details.name} | UnitTap Movies`,
+      description: `Full filmography and biography of ${details.name}.`,
+      images: [details.image],
+      type: 'profile'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: details.name,
+      description: `Full filmography and biography of ${details.name}.`,
+      images: [details.image],
+    }
   };
 }
 
@@ -37,7 +55,11 @@ export default async function PersonPage({ params }: Props) {
           </div>
           <div className="max-w-3xl">
             <h2 className="text-2xl font-black uppercase italic mb-4 border-b-4 border-black inline-block">Biography</h2>
-            <p className="text-xl font-medium leading-relaxed">{details.biography || "No biography available."}</p>
+            <p className="text-xl font-medium leading-relaxed">
+                {details.biography 
+                  ? LinkifyDescription(details.biography, details.credits.map((c: any) => ({ id: c.id, name: c.title, type: c.type })), id)
+                  : "No biography available."}
+            </p>
           </div>
         </div>
       </header>

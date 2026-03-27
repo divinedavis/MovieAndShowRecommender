@@ -12,9 +12,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { year, month } = await params;
   const t = getTranslations('en-US');
   const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', { month: 'long' });
+  const baseUrl = 'https://movies.unittap.com';
+  
   return {
-    title: `${t.calendarSeoTitle} ${monthName} ${year}`,
-    description: `${t.calendarSeoDesc} ${monthName} ${year}.`
+    title: `New Movie Releases in ${monthName} ${year} - Full Calendar & Schedule`,
+    description: `Discover all the new movies coming out in ${monthName} ${year}. Our comprehensive release calendar includes trailers, cast, and where to stream the latest titles.`,
+    keywords: [`new movie releases ${monthName} ${year}`, `${monthName} ${year} movie calendar`, `upcoming movies ${monthName}`, `movie release dates ${year}`],
+    alternates: {
+      canonical: `${baseUrl}/calendar/${year}/${month}`,
+    }
   };
 }
 
@@ -24,8 +30,33 @@ export default async function CalendarPage({ params }: Props) {
   const t = getTranslations('en-US');
   const monthName = new Date(parseInt(year), parseInt(month) - 1).toLocaleString('en-US', { month: 'long' });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Movie Releases ${monthName} ${year}`,
+    "itemListElement": movies.map((m: any, i: number) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "Event",
+        "name": m.title,
+        "startDate": m.releaseDate,
+        "location": {
+          "@type": "Place",
+          "name": "Streaming Platforms & Theaters"
+        },
+        "image": m.image,
+        "description": `Official release of ${m.title} in ${monthName} ${year}.`
+      }
+    }))
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="mb-20">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">{t.backToDiscovery}</Link>
         <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase mb-4">{monthName} {year}</h1>
