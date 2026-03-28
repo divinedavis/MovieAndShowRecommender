@@ -63,11 +63,25 @@ export default async function ShowPage({ params }: Props) {
     }))
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'Shows', item: 'https://movies.unittap.com/genre/drama' },
+      { '@type': 'ListItem', position: 3, name: details.title, item:  }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="relative h-[50vh] md:h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
