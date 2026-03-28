@@ -146,6 +146,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  // Streaming + Genre combo URLs
+  const streamingGenreUrls = [
+    { url: `${baseUrl}/streaming/new-on-netflix/genre/28`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-netflix/genre/18`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-netflix/genre/27`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-netflix/genre/35`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-max/genre/28`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-max/genre/18`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-max/genre/878`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-disney/genre/16`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-disney/genre/28`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-hulu/genre/35`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-hulu/genre/53`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-apple/genre/18`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-amazon/genre/28`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+    { url: `${baseUrl}/streaming/new-on-amazon/genre/878`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
+  ];
+
   return [
     { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -158,5 +176,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...streamingUrls,
     ...calendarUrls,
     ...genreYearUrls,
+    ...streamingGenreUrls,
   ];
 }
