@@ -40,7 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: details.title,
       description: details.description.substring(0, 160),
       images: [details.image],
-      type: 'video.tv_show'
+      type: 'video.tv_show',
+      ...(details.trailerKey ? { videos: [{ url: `https://www.youtube.com/watch?v=${details.trailerKey}`, type: 'text/html', width: 1280, height: 720 }] } : {})
     }
   };
 }
