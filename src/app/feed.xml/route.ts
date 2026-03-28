@@ -1,8 +1,23 @@
 import { getMediaData } from '@/lib/tmdb';
 
+const SITEMAP_URL = 'https://movies.unittap.com/sitemap.xml';
+
+async function pingSitemapIndexers() {
+  const pings = [
+    `https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`,
+    `https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`,
+  ];
+  await Promise.allSettled(
+    pings.map(url => fetch(url, { method: 'GET', next: { revalidate: 86400 } }))
+  );
+}
+
 export async function GET() {
   const { movies, top2026Month } = await getMediaData();
   const baseUrl = 'https://movies.unittap.com';
+
+  // Ping search engines when this route is called (max once per day due to revalidate)
+  pingSitemapIndexers().catch(() => {});
 
   const items = [...movies, ...top2026Month]
     .map((m) => `
