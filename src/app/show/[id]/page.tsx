@@ -80,6 +80,41 @@ export default async function ShowPage({ params }: Props) {
     }
   };
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Where can I watch ${details.title} online?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: details.streamingProviders.length > 0
+            ? `You can stream ${details.title} on ${details.streamingProviders.join(', ')}.`
+            : `Check Netflix, Max, and Amazon Prime for ${details.title} streaming availability.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `How many seasons does ${details.title} have?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} is an ongoing TV series. Check the show page for the latest season and episode information.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Is ${details.title} available on Netflix?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: details.streamingProviders.includes('Netflix')
+            ? `Yes, ${details.title} is currently available for streaming on Netflix.`
+            : `No, ${details.title} is not currently on Netflix. It may be available on ${details.streamingProviders[0] || 'other platforms like Max or Disney+'}.`
+        }
+      }
+    ]
+  };
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -95,6 +130,10 @@ export default async function ShowPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <script
         type="application/ld+json"
