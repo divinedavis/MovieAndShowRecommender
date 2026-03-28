@@ -48,11 +48,26 @@ export default async function BestPage({ params }: Props) {
     }))
   };
 
+  const datasetJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: `Best ${g.charAt(0).toUpperCase() + g.slice(1)} Movies on ${p.charAt(0).toUpperCase() + p.slice(1)} - ${new Date().getFullYear()}`,
+    description: `Curated list of top-rated ${g} movies currently streaming on ${p}, ranked by audience ratings and popularity.`,
+    url: `https://movies.unittap.com/best/${slug}`,
+    variableMeasured: 'TMDB Rating',
+    creator: { '@type': 'Organization', name: 'UnitTap Movies' },
+    dateModified: new Date().toISOString(),
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
       />
       <header className="mb-20">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO HOME</Link>
