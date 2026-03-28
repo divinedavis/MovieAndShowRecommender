@@ -35,7 +35,24 @@ export default async function AwardCeremonyPage({ params }: Props) {
   
   const ceremonies = await getAwardMultiCeremonyData(type, lang, country?.code || 'US');
 
-  const ceremonyDisplayName = country ?  : (type === 'oscars' ? 'Mainstream Cinema Awards' : 'Black Excellence in Cinema');
+  const ceremonyDisplayName = country
+    ? `${country.name} Cinema Awards`
+    : (type === 'oscars' ? 'Mainstream Cinema Awards' : 'Black Excellence in Cinema');
+
+  const eventOrganizer = type === 'oscars'
+    ? 'Academy of Motion Picture Arts and Sciences'
+    : type === 'black-reel'
+    ? 'Black Reel Awards Organization'
+    : `${country?.name || 'International'} Film Academy`;
+
+  const eventJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: ceremonyDisplayName,
+    startDate: '2026',
+    location: { '@type': 'Place', name: 'Hollywood' },
+    organizer: { '@type': 'Organization', name: eventOrganizer }
+  };
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -43,22 +60,26 @@ export default async function AwardCeremonyPage({ params }: Props) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
       { '@type': 'ListItem', position: 2, name: 'Awards', item: 'https://movies.unittap.com' },
-      { '@type': 'ListItem', position: 3, name: ceremonyDisplayName, item:  }
+      { '@type': 'ListItem', position: 3, name: ceremonyDisplayName, item: `https://movies.unittap.com/awards/${slug}` }
     ]
   };
 
   return (
-    <main className=min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden>
+    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
       <script
-        type=application/ld+json
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
       />
       <header className="mb-20">
         <Link href={lang === 'en-US' ? '/' : `/${lang.split('-')[0]}`} className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">{t.backToDiscovery}</Link>
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
           {country ? `${country.name} Cinema Awards` : (type === 'oscars' ? 'Mainstream Cinema Awards' : 'Black Excellence in Cinema')}
         </h1>
-        <p className="text-xl md:text-2xl font-black text-gray-400 uppercase italic">2026 CEREMONIES // ${t.winnersAndNominees}</p>
+        <p className="text-xl md:text-2xl font-black text-gray-400 uppercase italic">2026 CEREMONIES // {t.winnersAndNominees}</p>
         <div className="w-full h-4 bg-black mt-8"></div>
       </header>
 
