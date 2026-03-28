@@ -30,7 +30,7 @@ function generateCalendarUrls(baseUrl: string): MetadataRoute.Sitemap {
     const month = String(current.getMonth() + 1).padStart(2, '0');
     urls.push({
       url: `${baseUrl}/calendar/${year}/${month}`,
-      lastModified: new Date(),
+      lastModified: lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     });
@@ -41,6 +41,7 @@ function generateCalendarUrls(baseUrl: string): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const lastModified = new Date().toISOString();
   const { movies, top2025, top2026Month, localAwards } = await getMediaData();
   const expanded = await getMediaForSitemap();
   const tmdbGenres = await fetchTMDBGenres();
@@ -48,35 +49,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const homepageMovies = [...movies, ...top2025, ...top2026Month, ...localAwards].map((m) => ({
     url: `${baseUrl}/movie/${m.id}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
 
   const expandedMovies = expanded.movies.map((m) => ({
     url: `${baseUrl}/movie/${m.id}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));
 
   const expandedShows = expanded.shows.map((s) => ({
     url: `${baseUrl}/show/${s.id}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));
 
   const langUrls = ['es', 'fr', 'de', 'hi', 'ko', 'zh', 'pt', 'ja'].map(lang => ({
     url: `${baseUrl}/${lang}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'daily' as const,
     priority: 0.9,
   }));
 
   const awardUrls = TOP_COUNTRIES.map(c => ({
     url: `${baseUrl}/awards/${c.code.toLowerCase()}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));
@@ -84,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // All TMDB genres from API
   const tmdbGenreUrls = tmdbGenres.map(g => ({
     url: `${baseUrl}/genre/${g.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'weekly' as const,
     priority: 0.75,
   }));
@@ -96,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'family', 'history', 'music', 'mystery', 'war', 'western'
   ].map(g => ({
     url: `${baseUrl}/genre/${g}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'weekly' as const,
     priority: 0.75,
   }));
@@ -117,7 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const bestUrls = platforms.flatMap(p => 
     genres.map(g => ({
       url: `${baseUrl}/best/${p}-${g}`,
-      lastModified: new Date(),
+      lastModified: lastModified,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }))
@@ -125,7 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const streamingUrls = platforms.map(p => ({
     url: `${baseUrl}/streaming/new-on-${p}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: 'daily' as const,
     priority: 0.8,
   }));
@@ -134,7 +135,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const calendarUrls = generateCalendarUrls(baseUrl);
 
   return [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
+    { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
     ...expandedMovies,
     ...expandedShows,
