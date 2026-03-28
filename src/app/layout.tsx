@@ -22,6 +22,29 @@ export const metadata: Metadata = {
   description: "Find the best movies and shows on Netflix, Max, Disney+, Hulu and more. Browse by genre or streaming platform.",
 };
 
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'UnitTap Movies',
+  url: 'https://movies.unittap.com',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://movies.unittap.com/search?q={search_term_string}',
+    'query-input': 'required name=search_term_string'
+  }
+};
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'UnitTap Movies',
+  url: 'https://movies.unittap.com',
+  logo: {
+    '@type': 'ImageObject',
+    url: 'https://movies.unittap.com/logo.png'
+  }
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,6 +60,17 @@ export default function RootLayout({
           type="application/rss+xml"
           title="RSS Feed for UnitTap Movies"
           href="/feed.xml"
+        />
+        <link rel="preconnect" href="https://image.tmdb.org" />
+        <link rel="dns-prefetch" href="https://image.tmdb.org" />
+        <link rel="preconnect" href="https://api.themoviedb.org" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
       <body className="antialiased">{children}</body>
