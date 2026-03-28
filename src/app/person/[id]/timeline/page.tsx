@@ -85,7 +85,7 @@ export default async function PersonTimelinePage({ params }: Props) {
 
   // Group by decade
   const decades: Record<string, typeof data.credits> = {};
-  data.credits.forEach((c) => {
+  data.credits.forEach((c: any) => {
     const decade = `${Math.floor(c.year / 10) * 10}s`;
     if (!decades[decade]) decades[decade] = [];
     decades[decade].push(c);
