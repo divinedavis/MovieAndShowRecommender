@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Best ${genreName} Movies on ${platformName} (${year})`,
     description: `The best ${genreName.toLowerCase()} movies streaming on ${platformName} from ${year}. Find top-rated ${genreName.toLowerCase()} films available to watch now.`,
     keywords: [`${genreName.toLowerCase()} movies ${platformName.toLowerCase()} ${year}`, `best ${genreName.toLowerCase()} on ${platformName.toLowerCase()}`, `${platformName.toLowerCase()} ${genreName.toLowerCase()} ${year}`],
-    alternates: { canonical: `${BASE_URL}/streaming/${platform}/genre/${genreId}/year/${year}` },
+    alternates: { canonical: `${BASE_URL}/streaming/best/${platform}/${genreId}/${year}` },
     openGraph: { title: `Best ${genreName} on ${platformName} (${year}) | UnitTap Movies`, description: `Top ${genreName} movies on ${platformName} from ${year}.`, type: 'website' },
   };
 }
@@ -73,7 +73,7 @@ export default async function TripleComboPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: `Best ${genreName} Movies on ${platformName} (${year})`,
-    url: `${BASE_URL}/streaming/${platform}/genre/${genreId}/year/${year}`,
+    url: `${BASE_URL}/streaming/best/${platform}/${genreId}/${year}`,
     numberOfItems: movies.length,
     itemListElement: movies.map((m: any, i: number) => ({
       '@type': 'ListItem', position: i + 1,
