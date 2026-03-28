@@ -20,7 +20,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [`new movie releases ${monthName} ${year}`, `${monthName} ${year} movie calendar`, `upcoming movies ${monthName}`, `movie release dates ${year}`],
     alternates: {
       canonical: `${baseUrl}/calendar/${year}/${month}`,
-    }
+    },
+    openGraph: {
+      title: `${monthName} ${year} Movie Releases | UnitTap Movies`,
+      description: `All movies releasing in ${monthName} ${year}. Trailers, cast details, and streaming availability.`,
+      type: 'website',
+      url: `${baseUrl}/calendar/${year}/${month}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${monthName} ${year} Movie Releases`,
+      description: `All movies releasing in ${monthName} ${year}.`,
+    },
   };
 }
 
@@ -38,15 +49,11 @@ export default async function CalendarPage({ params }: Props) {
       "@type": "ListItem",
       "position": i + 1,
       "item": {
-        "@type": "Event",
+        "@type": "Movie",
         "name": m.title,
-        "startDate": m.releaseDate,
-        "location": {
-          "@type": "Place",
-          "name": "Streaming Platforms & Theaters"
-        },
-        "image": m.image,
-        "description": `Official release of ${m.title} in ${monthName} ${year}.`
+        "url": `https://movies.unittap.com/movie/${m.id}`,
+        "datePublished": m.releaseDate,
+        "image": m.image
       }
     }))
   };
