@@ -23,6 +23,22 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getMediaDetails(id, 'movie');
+
+  // Fetch trending movies for cross-linking
+  let trendingMovies: any[] = [];
+  try {
+    const trendRes = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.TMDB_API_KEY}&language=en-US`, { next: { revalidate: 3600 } });
+    if (trendRes.ok) {
+      const trendData = await trendRes.json();
+      trendingMovies = trendData.results.slice(0, 5).filter((m: any) => String(m.id) !== id).slice(0, 4).map((m: any) => ({
+        id: m.id,
+        title: m.title,
+        image: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+        rating: m.vote_average || 0,
+        year: m.release_date ? new Date(m.release_date).getFullYear() : 0,
+      }));
+    }
+  } catch {}
   const baseUrl = 'https://movies.unittap.com';
   
   return {
@@ -371,6 +387,21 @@ export default async function MoviePage({ params }: Props) {
               ))}
             </div>
           </div>
+          {trendingMovies.length > 0 && (
+            <div>
+              <h3 className="font-black mb-6 md:mb-8 uppercase text-xs md:text-sm tracking-tight border-b-2 border-gray-100 pb-4 italic">TRENDING RIGHT NOW</h3>
+              <div className="space-y-4 md:space-y-6">
+                {trendingMovies.map((s: any) => (
+                  <Link key={s.id} href={`/movie/${s.id}`} className="flex items-center space-x-4 md:space-x-5 group">
+                    {s.image && <div className="relative aspect-[2/3] md:h-24 w-14 md:w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
+                      <Image src={s.image} alt={`Trending: ${s.title}`} fill className="object-cover rounded-xl" />
+                    </div>}
+                    <p className="font-black text-xs md:text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight break-words">{s.title}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
       </div>
     </main>
