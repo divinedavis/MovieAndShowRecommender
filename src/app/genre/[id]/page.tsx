@@ -104,15 +104,29 @@ export default async function GenrePage({ params }: Props) {
     })),
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'Genre', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 3, name: name, item:  }
+    ]
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+    <main className=min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10>
       <script
-        type="application/ld+json"
+        type=application/ld+json
         dangerouslySetInnerHTML={{ __html: JSON.stringify(moviesJsonLd) }}
       />
       <script
-        type="application/ld+json"
+        type=application/ld+json
         dangerouslySetInnerHTML={{ __html: JSON.stringify(showsJsonLd) }}
+      />
+      <script
+        type=application/ld+json
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <header className="mb-20">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">\u2190 BACK TO HOME</Link>
