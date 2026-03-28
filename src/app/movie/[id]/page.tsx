@@ -50,6 +50,8 @@ export default async function MoviePage({ params }: Props) {
     ? `https://www.youtube.com/watch?v=${details.trailerKey}`
     : null;
 
+  const director = details.credits?.crew?.find((c: any) => c.job === 'Director') || null;
+
   const jsonLd: any = {
     '@context': 'https://schema.org',
     '@type': 'Movie',
@@ -74,7 +76,8 @@ export default async function MoviePage({ params }: Props) {
       '@type': 'AggregateOffer',
       availability: 'https://schema.org/OnlineOnly',
       category: 'streaming'
-    }
+    },
+    ...(director ? { director: { '@type': 'Person', name: director.name } } : {})
   };
 
   const breadcrumbJsonLd = {
