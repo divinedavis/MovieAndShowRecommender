@@ -34,6 +34,26 @@ export default async function FranchisePage({ params }: Props) {
   const details = await getCollectionDetails(id);
   const jsonLd = generateWatchOrderSchema(details);
 
+  const seriesJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'MovieSeries',
+    name: details.name,
+    description: details.description,
+    image: details.image,
+    url: ,
+    hasPart: details.parts.map((p: any) => ({
+      '@type': 'Movie',
+      name: p.title,
+      url: ,
+      datePublished: ,
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: p.rating,
+        bestRating: '10'
+      }
+    }))
+  };
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -53,6 +73,10 @@ export default async function FranchisePage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(seriesJsonLd) }}
       />
       <header className="mb-20 flex flex-col items-center text-center">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4">← BACK TO DISCOVERY</Link>
