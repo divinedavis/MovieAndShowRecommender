@@ -7,6 +7,16 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+export async function generateStaticParams() {
+  const API_KEY = process.env.TMDB_API_KEY;
+  const pages = [1, 2, 3, 4, 5];
+  const results = await Promise.all(
+    pages.map(p => fetch().then(r => r.json()))
+  );
+  const ids = results.flatMap((data: any) => data.results.map((m: any) => ({ id: String(m.id) })));
+  return ids;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getMediaDetails(id, 'show');
