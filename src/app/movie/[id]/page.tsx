@@ -105,6 +105,11 @@ export default async function MoviePage({ params }: Props) {
       category: 'streaming'
     },
     ...(director ? { director: { '@type': 'Person', name: director.name } } : {}),
+    recommendation: details.similar.slice(0, 5).map((s: any) => ({
+      '@type': 'Movie',
+      name: s.title,
+      url: `https://movies.unittap.com/movie/${s.id}`,
+    })),
     additionalProperty: [
       ...(details.runtime ? [{ '@type': 'PropertyValue', name: 'Runtime', value: `${details.runtime} min` }] : []),
       { '@type': 'PropertyValue', name: 'Language', value: details.genres.length > 0 ? 'English' : 'Unknown' },
