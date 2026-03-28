@@ -293,6 +293,102 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Curated list pages
+  const curatedListUrls = [
+    'true-story', 'all-time-greatest', 'polarizing', 'underrated', 'debut-films',
+    'award-sweepers', 'critics-vs-audience', 'best-soundtracks', 'book-adaptations',
+    'binge-worthy', 'mini-series', 'adult-animation', 'great-sequels', 'international-thrillers',
+  ].map(s => ({
+    url: `${baseUrl}/lists/${s}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Occasion pages
+  const occasionUrls = ['date-night', 'guys-night', 'girls-night', 'family-night', 'solo-watch'].map(o => ({
+    url: `${baseUrl}/lists/occasion/${o}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Tag pages
+  const tagUrls = ['time-travel', 'superhero', 'zombie', 'heist', 'dystopia', 'space', 'serial-killer', 'revenge'].map(t => ({
+    url: `${baseUrl}/tag/${t}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Standalone new pages
+  const standaloneUrls = ['free', 'coming-soon', 'new-releases', 'weekend-watch'].map(p => ({
+    url: `${baseUrl}/${p}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.8,
+  }));
+
+  // Streaming compare page
+  const streamingCompareUrls = [{
+    url: `${baseUrl}/streaming/compare`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }];
+
+  // Cinema pages (now playing by country)
+  const cinemaUrls = ['us', 'gb', 'fr', 'kr', 'jp', 'in', 'it', 'es', 'de', 'br', 'mx', 'se', 'dk'].map(c => ({
+    url: `${baseUrl}/cinema/${c}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
+  // Quick-watch pages
+  const quickWatchUrls = ['netflix', 'max', 'disney', 'hulu', 'prime', 'apple'].map(p => ({
+    url: `${baseUrl}/quick-watch/${p}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Browse A-Z + 0-9 pages
+  const browseLetters = 'abcdefghijklmnopqrstuvwxyz'.split('').map(l => ({
+    url: `${baseUrl}/browse/${l}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
+  }));
+  const browseUrls = [
+    ...browseLetters,
+    { url: `${baseUrl}/browse/0-9`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.5 },
+  ];
+
+  // Guide pages
+  const guideUrls = ['streaming-guide', 'movie-night', 'family-movies'].map(g => ({
+    url: `${baseUrl}/guides/${g}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Universe / franchise pages
+  const universeUrls = ['marvel', 'dc', 'star-wars', 'harry-potter', 'lord-of-the-rings', 'fast-furious'].map(u => ({
+    url: `${baseUrl}/universe/${u}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Awards collection pages
+  const awardsCollectionUrls = ['best-picture', 'best-director', 'best-animated', 'best-documentary', 'best-foreign'].map(a => ({
+    url: `${baseUrl}/awards/collection/${a}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
   return [
     { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -321,5 +417,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...boxOfficeUrls,
     ...studioGenreUrls,
     ...genreComboUrls,
+    ...curatedListUrls,
+    ...occasionUrls,
+    ...tagUrls,
+    ...standaloneUrls,
+    ...streamingCompareUrls,
+    ...cinemaUrls,
+    ...quickWatchUrls,
+    ...browseUrls,
+    ...guideUrls,
+    ...universeUrls,
+    ...awardsCollectionUrls,
   ];
 }
