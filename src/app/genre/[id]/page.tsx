@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getMediaByGenre } from '@/lib/tmdb';
 import { Metadata } from 'next';
 
+export const revalidate = 3600;
+
 interface Props {
   params: Promise<{ id: string }>;
 }

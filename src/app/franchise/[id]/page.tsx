@@ -4,6 +4,8 @@ import { getCollectionDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
 import { generateWatchOrderSchema } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 interface Props {
   params: Promise<{ id: string }>;
 }

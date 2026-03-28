@@ -4,6 +4,8 @@ import { getPersonDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
 import { LinkifyDescription } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 interface Props {
   params: Promise<{ id: string }>;
 }

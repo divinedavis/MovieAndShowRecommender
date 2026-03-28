@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getMediaDetails } from '@/lib/tmdb';
 import { Metadata } from 'next';
 
+export const revalidate = 3600;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

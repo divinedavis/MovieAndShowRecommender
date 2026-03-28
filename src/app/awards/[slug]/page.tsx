@@ -5,6 +5,8 @@ import { getAwardMultiCeremonyData } from '@/lib/tmdb';
 import { getCountryByCode } from '@/lib/countries';
 import { getTranslations } from '@/lib/translations';
 
+export const revalidate = 3600;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
