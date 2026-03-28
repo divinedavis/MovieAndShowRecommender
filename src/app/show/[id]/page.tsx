@@ -22,22 +22,6 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const details = await getMediaDetails(id, 'show');
-
-  // Fetch trending shows for cross-linking
-  let trendingShows: any[] = [];
-  try {
-    const trendRes = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.TMDB_API_KEY}&language=en-US`, { next: { revalidate: 3600 } });
-    if (trendRes.ok) {
-      const trendData = await trendRes.json();
-      trendingShows = trendData.results.slice(0, 5).filter((m: any) => String(m.id) !== id).slice(0, 4).map((m: any) => ({
-        id: m.id,
-        title: m.name || m.title,
-        image: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
-        rating: m.vote_average || 0,
-        year: m.first_air_date ? new Date(m.first_air_date).getFullYear() : 0,
-      }));
-    }
-  } catch {}
   const baseUrl = 'https://movies.unittap.com';
   return {
     title: `${details.title} (${details.year}) - Watch, Stream & Reviews`,
@@ -75,6 +59,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ShowPage({ params }: Props) {
   const { id } = await params;
   const details = await getMediaDetails(id, 'show');
+
+  // Fetch trending shows for cross-linking
+  let trendingShows: any[] = [];
+  try {
+    const trendRes = await fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.TMDB_API_KEY}&language=en-US`, { next: { revalidate: 3600 } });
+    if (trendRes.ok) {
+      const trendData = await trendRes.json();
+      trendingShows = trendData.results.slice(0, 5).filter((m: any) => String(m.id) !== id).slice(0, 4).map((m: any) => ({
+        id: m.id,
+        title: m.name || m.title,
+        image: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : null,
+        rating: m.vote_average || 0,
+        year: m.first_air_date ? new Date(m.first_air_date).getFullYear() : 0,
+      }));
+    }
+  } catch {}
 
   const trailerUrl = details.trailerKey 
     ? `https://www.youtube.com/watch?v=${details.trailerKey}`
