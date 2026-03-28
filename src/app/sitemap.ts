@@ -164,6 +164,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/streaming/new-on-amazon/genre/878`, lastModified: lastModified, changeFrequency: 'weekly' as const, priority: 0.75 },
   ];
 
+  // Decade pages
+  const decadeUrls = ['1970s', '1980s', '1990s', '2000s', '2010s', '2020s'].map(d => ({
+    url: `${baseUrl}/best/decade/${d}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Mood recommendation pages
+  const moodUrls = ['feel-good', 'mind-bending', 'intense-action', 'romantic', 'dark-comedy', 'scary', 'inspiring', 'adventure'].map(m => ({
+    url: `${baseUrl}/recommendations/${m}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Streaming calendar pages (current + next 2 months)
+  const newOnUrls: MetadataRoute.Sitemap = [];
+  const now = new Date();
+  const newOnPlatforms = ['netflix', 'max', 'disney', 'hulu', 'apple', 'prime'];
+  for (let offset = 0; offset <= 2; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const yr = String(d.getFullYear());
+    const mo = String(d.getMonth() + 1);
+    for (const p of newOnPlatforms) {
+      newOnUrls.push({
+        url: `${baseUrl}/new-on/${p}/${yr}/${mo}`,
+        lastModified: lastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    }
+  }
+
+  // Awards predictions
+  const predictionUrls = [{
+    url: `${baseUrl}/awards/predictions`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }];
+
   return [
     { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -177,5 +219,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...calendarUrls,
     ...genreYearUrls,
     ...streamingGenreUrls,
+    ...decadeUrls,
+    ...moodUrls,
+    ...newOnUrls,
+    ...predictionUrls,
   ];
 }
