@@ -134,6 +134,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // All calendar pages from Jan 2023 to current month
   const calendarUrls = generateCalendarUrls(baseUrl);
 
+  // Genre + Year combo URLs
+  const TOP_GENRE_IDS = ['28', '35', '18', '27', '878', '53', '10749', '16'];
+  const YEARS = ['2020', '2021', '2022', '2023', '2024', '2025'];
+  const genreYearUrls = TOP_GENRE_IDS.flatMap(gId =>
+    YEARS.map(yr => ({
+      url: `${baseUrl}/genre/${gId}/year/${yr}`,
+      lastModified: lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  );
+
   return [
     { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -145,5 +157,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bestUrls,
     ...streamingUrls,
     ...calendarUrls,
+    ...genreYearUrls,
   ];
 }
