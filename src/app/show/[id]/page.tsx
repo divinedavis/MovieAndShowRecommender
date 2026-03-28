@@ -112,6 +112,38 @@ export default async function ShowPage({ params }: Props) {
             ? `Yes, ${details.title} is currently available for streaming on Netflix.`
             : `No, ${details.title} is not currently on Netflix. It may be available on ${details.streamingProviders[0] || 'other platforms like Max or Disney+'}.`
         }
+      },
+      {
+        '@type': 'Question',
+        name: `Is ${details.title} worth watching?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `With a rating of ${(details.rating || 0).toFixed(1)}/10 from ${details.voteCount.toLocaleString()} voters, ${details.title} is ${details.rating >= 7 ? 'highly recommended' : details.rating >= 5 ? 'a solid watch' : 'worth checking out for fans of the genre'}.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Who stars in ${details.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} stars ${details.cast.slice(0, 3).map((c: any) => c.name).join(', ')}.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `What genre is ${details.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} is a ${details.genres.join(', ')} series.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `When was ${details.title} first aired?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} first aired in ${details.year}.`
+        }
       }
     ]
   };

@@ -134,6 +134,40 @@ export default async function MoviePage({ params }: Props) {
           '@type': 'Answer',
           text: `${details.title} was released in ${details.year}.`
         }
+      },
+      {
+        '@type': 'Question',
+        name: `How long is ${details.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: details.runtime
+            ? `${details.title} has a runtime of ${details.runtime} minutes (${Math.floor(details.runtime / 60)}h ${details.runtime % 60}m).`
+            : `Runtime information for ${details.title} is not currently available.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Is ${details.title} worth watching?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `With a rating of ${(details.rating || 0).toFixed(1)}/10 from ${details.voteCount.toLocaleString()} voters, ${details.title} is ${details.rating >= 7 ? 'highly recommended' : details.rating >= 5 ? 'a solid watch' : 'worth checking out for fans of the genre'}.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Who stars in ${details.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} stars ${details.cast.slice(0, 3).map((c: any) => c.name).join(', ')}.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `What genre is ${details.title}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${details.title} is a ${details.genres.join(', ')} film.`
+        }
       }
     ]
   };
