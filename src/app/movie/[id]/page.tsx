@@ -232,7 +232,7 @@ export default async function MoviePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="relative h-[50vh] md:h-[65vh] w-full shadow-inner">
-        <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
+        <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority quality={85} />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
         <div className="absolute bottom-0 left-0 p-6 md:p-10 max-w-7xl mx-auto w-full">
           <nav className="flex text-white/60 text-[10px] font-black uppercase tracking-widest mb-4 gap-2 flex-wrap">
@@ -295,7 +295,7 @@ export default async function MoviePage({ params }: Props) {
               {details.cast.map((c: any) => (
                 <Link key={c.id} href={`/person/${c.id}`} className="group">
                   {c.image && <div className="relative aspect-[2/3] md:h-44 w-full mb-3 rounded-xl overflow-hidden shadow-lg group-hover:shadow-blue-200 transition-all group-hover:scale-105">
-                    <Image src={c.image} alt={`Actor ${c.name}`} fill className="object-cover" />
+                    <Image src={c.image} alt={`Actor ${c.name}`} fill className="object-cover" quality={85} />
                   </div>}
                   <p className="font-black text-xs md:text-sm uppercase tracking-tight group-hover:text-blue-600 transition-colors">{c.name}</p>
                   <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase">{c.character}</p>
@@ -383,7 +383,7 @@ export default async function MoviePage({ params }: Props) {
               {details.similar.slice(0, 5).map((s: any) => (
                 <Link key={s.id} href={`/movie/${s.id}`} className="flex items-center space-x-4 md:space-x-5 group">
                   <div className="relative aspect-[2/3] md:h-24 w-14 md:w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
-                    <Image src={s.image} alt={`Similar title ${s.title}`} fill className="object-cover rounded-xl" />
+                    <Image src={s.image} alt={`Similar title ${s.title}`} fill className="object-cover rounded-xl" quality={85} />
                   </div>
                   <p className="font-black text-xs md:text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight break-words">{s.title}</p>
                 </Link>
@@ -397,7 +397,7 @@ export default async function MoviePage({ params }: Props) {
                 {trendingMovies.map((s: any) => (
                   <Link key={s.id} href={`/movie/${s.id}`} className="flex items-center space-x-4 md:space-x-5 group">
                     {s.image && <div className="relative aspect-[2/3] md:h-24 w-14 md:w-16 flex-shrink-0 shadow-md group-hover:shadow-xl transition-all">
-                      <Image src={s.image} alt={`Trending: ${s.title}`} fill className="object-cover rounded-xl" />
+                      <Image src={s.image} alt={`Trending: ${s.title}`} fill className="object-cover rounded-xl" quality={85} />
                     </div>}
                     <p className="font-black text-xs md:text-sm uppercase group-hover:text-blue-600 transition tracking-tighter leading-tight break-words">{s.title}</p>
                   </Link>

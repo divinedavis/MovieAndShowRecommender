@@ -77,7 +77,7 @@ export default async function PersonPage({ params }: Props) {
       />
       <header className="mb-20 flex flex-col md:flex-row gap-12 items-start">
         <div className="relative aspect-[2/3] w-full md:w-[350px] flex-shrink-0 border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
-          {details.image && <Image src={details.image} alt={`Actor ${details.name}`} fill className="object-cover" priority />}
+          {details.image && <Image src={details.image} alt={`Actor ${details.name}`} fill className="object-cover" priority quality={85} />}
         </div>
         <div className="flex-grow">
           <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">\u2190 BACK TO DISCOVERY</Link>
@@ -104,7 +104,7 @@ export default async function PersonPage({ params }: Props) {
           {details.credits.map((item: any) => (
             <Link key={item.id} href={`/${item.type}/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
               <div className="relative aspect-[2/3] w-full border-b-4 border-black">
-                {item.image && <Image src={item.image} alt={`Poster for ${item.title}`} fill className="object-cover" />}
+                {item.image && <Image src={item.image} alt={`Poster for ${item.title}`} fill className="object-cover" quality={85} />}
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
               </div>
               <div className="p-4">

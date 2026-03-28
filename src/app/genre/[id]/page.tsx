@@ -143,7 +143,7 @@ export default async function GenrePage({ params }: Props) {
           {movies.map((item: any) => (
             <Link key={item.id} href={`/movie/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
               <div className="relative aspect-[2/3] w-full border-b-4 border-black">
-                <Image src={item.image} alt={item.title} fill className="object-cover" />
+                <Image src={item.image} alt={item.title} fill className="object-cover" quality={85} />
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
               </div>
               <div className="p-4">
@@ -161,7 +161,7 @@ export default async function GenrePage({ params }: Props) {
           {shows.map((item: any) => (
             <Link key={item.id} href={`/show/${item.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
               <div className="relative aspect-[2/3] w-full border-b-4 border-black">
-                <Image src={item.image} alt={item.title} fill className="object-cover" />
+                <Image src={item.image} alt={item.title} fill className="object-cover" quality={85} />
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{item.rating.toFixed(1)}</div>
               </div>
               <div className="p-4">

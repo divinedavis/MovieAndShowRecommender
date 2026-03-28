@@ -149,7 +149,7 @@ export default async function FranchisePage({ params }: Props) {
                 <div className="lg:w-1/2 p-8">
                   <Link href={`/movie/${movie.id}`} className="block bg-white border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all group overflow-hidden rounded-3xl">
                     <div className="relative aspect-[2/3] w-full">
-                      <Image src={movie.image} alt={`Poster for ${movie.title}`} fill className="object-cover transition-transform group-hover:scale-110" />
+                      <Image src={movie.image} alt={`Poster for ${movie.title}`} fill className="object-cover transition-transform group-hover:scale-110" quality={85} />
                       <div className="absolute top-6 left-6 bg-blue-600 text-white font-black px-4 py-2 italic border-2 border-black">#{index + 1}</div>
                     </div>
                     <div className="p-8">
@@ -177,7 +177,7 @@ export default async function FranchisePage({ params }: Props) {
           {chronologicalOrder.map((movie: any, index: number) => (
             <Link key={movie.id} href={`/movie/${movie.id}`} className="block bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group">
               <div className="relative aspect-[2/3] w-full border-b-4 border-black">
-                <Image src={movie.image} alt={`${movie.title} chronological order`} fill className="object-cover" />
+                <Image src={movie.image} alt={`${movie.title} chronological order`} fill className="object-cover" quality={85} />
                 <div className="absolute top-2 left-2 bg-green-500 text-white border-2 border-black text-[10px] font-black px-2 py-1">#{index + 1}</div>
                 <div className="absolute top-2 right-2 bg-yellow-400 border-2 border-black text-[10px] font-black px-2 py-1">{movie.rating.toFixed(1)}</div>
               </div>
