@@ -172,6 +172,39 @@ export default async function GenrePage({ params }: Props) {
           ))}
         </div>
       </section>
+      {/* Genre Deep-Dive */}
+      <section className="mb-24 max-w-4xl">
+        <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 border-b-4 border-black pb-4">About {name} Movies</h2>
+        <div className="prose prose-lg max-w-none">
+          <p className="text-gray-700 text-lg leading-relaxed font-medium mb-4">
+            The {name} genre has produced some of cinema&apos;s most memorable films.
+            {movies.length > 0 && ` From critically acclaimed titles like ${movies[0]?.title} to fan favorites like ${movies[Math.min(4, movies.length - 1)]?.title}, ${id} continues to captivate audiences worldwide.`}
+          </p>
+          <p className="text-gray-700 text-lg leading-relaxed font-medium mb-4">
+            Whether you&apos;re looking for the highest-rated {id} movies of all time or the latest trending {id} TV series,
+            our curated lists are updated daily with real-time data from TMDB. Explore top-rated {id} films from every era and find your next favorite.
+          </p>
+          <p className="text-gray-700 text-lg leading-relaxed font-medium">
+            {shows.length > 0 && `On the TV side, shows like ${shows[0]?.title} have redefined what ${id} storytelling can achieve on the small screen. `}
+            Dive into our complete {id} collection and discover hidden gems you may have missed.
+          </p>
+        </div>
+      </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: `Best ${name} Movies 2026 - Top Rated & Trending`,
+          description: `Comprehensive guide to the best ${id} movies and TV shows.`,
+          url: `${baseUrl}/genre/${id}`,
+          datePublished: new Date().toISOString(),
+          dateModified: new Date().toISOString(),
+          author: { '@type': 'Organization', name: 'UnitTap Movies' },
+          publisher: { '@type': 'Organization', name: 'UnitTap Movies' },
+        }) }}
+      />
     </main>
   );
 }
