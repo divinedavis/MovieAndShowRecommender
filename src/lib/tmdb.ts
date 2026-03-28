@@ -160,7 +160,7 @@ export async function getMediaDetails(id: string, type: 'movie' | 'show', lang: 
     image: `https://image.tmdb.org/t/p/original${data.backdrop_path || data.poster_path}`,
     poster: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
     rating: data.vote_average || 0, voteCount: data.vote_count || 0, year: new Date(data.release_date || data.first_air_date).getFullYear(),
-    genres: data.genres.map((g: any) => g.name), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
+    genres: data.genres.map((g: any) => g.name), genreObjects: data.genres.map((g: any) => ({ id: g.id, name: g.name, slug: g.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-') })), runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null),
     streamingProviders: providers, watchLink, collection: data.belongs_to_collection, trailerKey, imdb_id: data.imdb_id,
     cast: data.credits.cast.slice(0, 10).map((c: any) => ({ id: c.id, name: c.name, character: c.character, image: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : null })),
     credits: { crew: data.credits.crew || [] },

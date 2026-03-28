@@ -153,7 +153,9 @@ export default async function ShowPage({ params }: Props) {
             <span className="bg-yellow-400 text-black px-3 py-1.5 rounded font-black text-sm italic">{(details.rating || 0).toFixed(1)} IMDB</span>
             <span>{details.year}</span>
             <div className="flex gap-2 md:gap-3 flex-wrap">
-              {details.genres.map((g: string) => (
+              {details.genreObjects?.map((g: any) => (
+                <Link key={g.id} href={`/genre/${g.slug}`} className="border-2 border-white/40 px-3 py-1 rounded text-[10px] hover:border-yellow-400 hover:text-yellow-400 transition">{g.name.toUpperCase()}</Link>
+              )) || details.genres.map((g: string) => (
                 <span key={g} className="border-2 border-white/40 px-3 py-1 rounded text-[10px]">{g.toUpperCase()}</span>
               ))}
             </div>

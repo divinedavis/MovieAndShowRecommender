@@ -193,7 +193,9 @@ export default async function MoviePage({ params }: Props) {
             <span>{details.year}</span>
             {details.runtime && <span>{details.runtime} MINS</span>}
             <div className="flex gap-2 md:gap-3 flex-wrap">
-              {details.genres.map((g: string) => (
+              {details.genreObjects?.map((g: any) => (
+                <Link key={g.id} href={`/genre/${g.slug}`} className="border-2 border-white/40 px-3 py-1 rounded text-[10px] hover:border-yellow-400 hover:text-yellow-400 transition">{g.name.toUpperCase()}</Link>
+              )) || details.genres.map((g: string) => (
                 <span key={g} className="border-2 border-white/40 px-3 py-1 rounded text-[10px]">{g.toUpperCase()}</span>
               ))}
             </div>
