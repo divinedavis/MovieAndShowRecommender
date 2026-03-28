@@ -67,6 +67,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: details.description.substring(0, 160),
       images: [details.image],
       type: 'video.tv_show',
+      publishedTime: `${details.year}-01-01T00:00:00Z`,
+      modifiedTime: new Date().toISOString(),
       ...(details.trailerKey ? { videos: [{ url: `https://www.youtube.com/watch?v=${details.trailerKey}`, type: 'text/html', width: 1280, height: 720 }] } : {})
     }
   };

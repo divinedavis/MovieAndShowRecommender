@@ -20,6 +20,10 @@ export const metadata: Metadata = {
     template: '%s | UnitTap Movies',
   },
   description: "Find the best movies and shows on Netflix, Max, Disney+, Hulu and more. Browse by genre or streaming platform.",
+  twitter: {
+    site: '@unittap',
+    card: 'summary_large_image',
+  },
 };
 
 const websiteSchema = {
