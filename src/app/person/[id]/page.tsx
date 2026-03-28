@@ -39,19 +39,37 @@ export default async function PersonPage({ params }: Props) {
   const { id } = await params;
   const details = await getPersonDetails(id);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: details.name,
+    description: details.biography?.substring(0, 500) || '',
+    image: details.image,
+    birthDate: details.birthday || undefined,
+    birthPlace: details.place_of_birth ? { '@type': 'Place', name: details.place_of_birth } : undefined,
+    url: `https://movies.unittap.com/person/${id}`,
+    jobTitle: details.known_for,
+    worksFor: { '@type': 'Organization', name: 'Film & Television Industry' },
+    sameAs: [],
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="mb-20 flex flex-col md:flex-row gap-12 items-start">
         <div className="relative aspect-[2/3] w-full md:w-[350px] flex-shrink-0 border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
           {details.image && <Image src={details.image} alt={`Actor ${details.name}`} fill className="object-cover" priority />}
         </div>
         <div className="flex-grow">
-          <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO DISCOVERY</Link>
+          <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">\u2190 BACK TO DISCOVERY</Link>
           <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase mb-6">{details.name}</h1>
           <div className="flex flex-wrap gap-4 mb-8 text-xs font-black uppercase tracking-widest">
             <span className="bg-black text-white px-4 py-2">{details.known_for}</span>
             {details.birthday && <span className="border-4 border-black px-4 py-2">BORN: {details.birthday}</span>}
-            <Link href={`/person/${id}/best`} className="bg-blue-600 text-white border-4 border-black px-4 py-2 hover:bg-yellow-400 hover:text-black transition italic">Career Ranking →</Link>
+            <Link href={`/person/${id}/best`} className="bg-blue-600 text-white border-4 border-black px-4 py-2 hover:bg-yellow-400 hover:text-black transition italic">Career Ranking \u2192</Link>
           </div>
           <div className="max-w-3xl">
             <h2 className="text-2xl font-black uppercase italic mb-4 border-b-4 border-black inline-block">Biography</h2>

@@ -41,19 +41,26 @@ export default async function ShowPage({ params }: Props) {
     ? `https://www.youtube.com/watch?v=${details.trailerKey}`
     : null;
 
-  const jsonLd = {
+  const jsonLd: any = {
     '@context': 'https://schema.org',
     '@type': 'TVSeries',
     name: details.title,
     description: details.description,
     image: details.image,
     datePublished: `${details.year}-01-01`,
+    genre: details.genres,
+    url: `https://movies.unittap.com/show/${id}`,
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: details.rating,
       bestRating: '10',
-      ratingCount: '1000'
-    }
+      ratingCount: String(details.voteCount)
+    },
+    actor: details.cast.slice(0, 5).map((c: any) => ({
+      '@type': 'Person',
+      name: c.name,
+      url: `https://movies.unittap.com/person/${c.id}`
+    }))
   };
 
   return (
