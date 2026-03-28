@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = 'https://movies.unittap.com';
   
   return {
-    title: `${details.title} (${details.year}) - Watch Online, Cast, Reviews & Trailer`,
-    description: `Watch ${details.title} online. ${details.description.substring(0, 120)}... Check out the cast, user reviews, and where to stream ${details.title} on Netflix, Max, and more.`,
+    title: `${details.title} (${details.year}) - Watch, Stream & Reviews`,
+    description: `Watch ${details.title} (${details.year}). ${details.description?.slice(0, 100)}... Available on ${details.streamingProviders?.join(', ') || 'streaming'}. Rated ${(details.rating || 0).toFixed(1)}/10.`,
     keywords: [`${details.title} movie`, `${details.title} cast`, `${details.title} reviews`, `where to watch ${details.title}`, `stream ${details.title}`],
     alternates: {
       canonical: `${baseUrl}/movie/${id}`,

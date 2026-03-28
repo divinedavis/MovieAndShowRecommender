@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const details = await getMediaDetails(id, 'show');
   const baseUrl = 'https://movies.unittap.com';
   return {
-    title: `Watch ${details.title} (${details.year}) - Stream & Full Cast`,
-    description: details.description.substring(0, 160),
+    title: `${details.title} (${details.year}) - Watch, Stream & Reviews`,
+    description: `Watch ${details.title} (${details.year}). ${details.description?.slice(0, 100)}... Available on ${details.streamingProviders?.join(', ') || 'streaming'}. Rated ${(details.rating || 0).toFixed(1)}/10.`,
     alternates: {
       canonical: `${baseUrl}/show/${id}`,
       languages: {
