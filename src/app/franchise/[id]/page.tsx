@@ -34,11 +34,25 @@ export default async function FranchisePage({ params }: Props) {
   const details = await getCollectionDetails(id);
   const jsonLd = generateWatchOrderSchema(details);
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'Franchise', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 3, name: details.name, item:  }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <header className="mb-20 flex flex-col items-center text-center">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4">← BACK TO DISCOVERY</Link>
