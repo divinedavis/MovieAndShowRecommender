@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -49,6 +50,8 @@ function MediaCard({ item }: { item: MediaItem }) {
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="lazy"
+          quality={85}
         />
         <div className="absolute top-3 right-3 bg-yellow-400 border-2 border-black text-black font-black text-[10px] md:text-xs px-2 py-1 italic">
           {item.rating} IMDB
