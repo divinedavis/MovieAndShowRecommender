@@ -231,6 +231,13 @@ export default async function ShowPage({ params }: Props) {
                 </div>
             </div>
             <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">{details.description}</p>
+            {details.streamingProviders.length > 0 && (
+              <p className="text-gray-600 text-base leading-relaxed mt-6 bg-gray-100 p-4 rounded-xl border-2 border-gray-200">
+                You can watch <strong>{details.title}</strong> on {details.streamingProviders.join(', ')}.{' '}
+                {details.title} is currently available for streaming in the United States.
+                {details.streamingProviders.length > 1 && ` Compare ${details.streamingProviders.length} streaming options to find the best way to watch.`}
+              </p>
+            )}
           </section>
 
           <section>

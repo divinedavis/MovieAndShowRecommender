@@ -284,6 +284,13 @@ export default async function MoviePage({ params }: Props) {
             <p className="text-gray-800 text-lg md:text-xl leading-relaxed font-medium">
                 {LinkifyDescription(details.description, details.cast.map((c: any) => ({ id: c.id, name: c.name, type: 'person' })), id)}
             </p>
+            {details.streamingProviders.length > 0 && (
+              <p className="text-gray-600 text-base leading-relaxed mt-6 bg-gray-100 p-4 rounded-xl border-2 border-gray-200">
+                You can watch <strong>{details.title}</strong> on {details.streamingProviders.join(', ')}.{' '}
+                {details.title} is currently available for streaming in the United States.
+                {details.streamingProviders.length > 1 && ` Compare ${details.streamingProviders.length} streaming options to find the best way to watch.`}
+              </p>
+            )}
           </section>
 
           <section>
