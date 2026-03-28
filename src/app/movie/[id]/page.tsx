@@ -142,10 +142,18 @@ export default async function MoviePage({ params }: Props) {
       '@type': 'VideoObject',
       name: `${details.title} Official Trailer`,
       description: `Official trailer for ${details.title}`,
-      thumbnailUrl: details.image,
       uploadDate: `${details.year}-01-01`,
       contentUrl: trailerUrl,
-      embedUrl: `https://www.youtube.com/embed/${details.trailerKey}`
+      embedUrl: `https://www.youtube.com/embed/${details.trailerKey}`,
+      thumbnailUrl: [
+        details.image,
+        `https://img.youtube.com/vi/${details.trailerKey}/maxresdefault.jpg`
+      ],
+      potentialAction: {
+        '@type': 'WatchAction',
+        target: `https://www.youtube.com/watch?v=${details.trailerKey}`
+      },
+      duration: details.runtime ? `PT${details.runtime}M` : undefined
     };
   }
 
