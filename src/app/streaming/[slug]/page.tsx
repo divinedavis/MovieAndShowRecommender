@@ -16,8 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `New on ${platform} (${currentMonth}) - Full List of Movie & Show Additions`,
-    description: `Every movie and TV show coming to ${platform} in ${currentMonth}. Stay updated with the latest streaming releases, trailers, and rankings.`,
-    keywords: [`new on ${slug}`, `coming to ${platform}`, `${platform} ${currentMonth} releases`, `streaming schedule ${platform}`]
+    description: `What's new on ${platform} in ${currentMonth}? Browse the complete list of movies and TV shows added to ${platform} this month. Find top-rated titles, originals, and hidden gems. Don't miss what to watch on ${platform} right now!`,
+    keywords: [`new on ${slug}`, `coming to ${platform}`, `${platform} ${currentMonth} releases`, `streaming schedule ${platform}`, `what to watch on ${platform}`, `${platform} new movies ${currentMonth}`]
   };
 }
 

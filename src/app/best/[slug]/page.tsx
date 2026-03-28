@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   return {
     title: `15+ Best ${genre} Movies on ${platform} (${currentMonth}) - Ranked & Reviewed`,
-    description: `Looking for the best ${genre} movies on ${platform}? Our expert-ranked list for ${currentMonth} features the top-rated titles you can stream right now.`,
-    keywords: [`best ${genre} movies on ${platform}`, `top ${genre} movies ${platform}`, `what ${genre} to watch on ${platform}`, `${platform} ${genre} rankings`]
+    description: `Discover the best ${genre} movies streaming on ${platform} right now. Our ${currentMonth} ranking lists the top-rated ${genre} films available to stream on ${platform} — updated weekly. Start watching today!`,
+    keywords: [`best ${genre} movies on ${platform}`, `top ${genre} movies ${platform}`, `what ${genre} to watch on ${platform}`, `${platform} ${genre} rankings`, `${genre} streaming ${platform} ${currentMonth}`]
   };
 }
 
