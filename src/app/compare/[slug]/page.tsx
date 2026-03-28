@@ -13,6 +13,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const [id1, id2] = slug.split('-vs-');
   const [m1, m2] = await Promise.all([getMediaDetails(id1, 'movie'), getMediaDetails(id2, 'movie')]);
+
+  const compareJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${m1.title} vs ${m2.title} Comparison`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, item: { '@type': 'Movie', name: m1.title, url: `https://movies.unittap.com/movie/${id1}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m1.rating, bestRating: '10' } } },
+      { '@type': 'ListItem', position: 2, item: { '@type': 'Movie', name: m2.title, url: `https://movies.unittap.com/movie/${id2}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m2.rating, bestRating: '10' } } }
+    ]
+  };
   return {
     title: `${m1.title} vs ${m2.title} - Side-by-Side Comparison & Streaming Guide`,
     description: `Compare ${m1.title} and ${m2.title} side-by-side. See which one has better ratings, longer runtime, and where each is streaming.`
@@ -33,6 +43,10 @@ export default async function ComparePage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(compareJsonLd) }}
+      />
       <header className="mb-20 text-center">
         <Link href="/" className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">← BACK TO DISCOVERY</Link>
         <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter uppercase mb-6">{m1.title} <span className="text-blue-600">VS</span> {m2.title}</h1>
@@ -88,6 +102,22 @@ export default async function ComparePage({ params }: Props) {
             ))}
           </div>
         </div>
+      </section>
+      <section className="max-w-4xl mx-auto bg-yellow-50 border-8 border-black rounded-[40px] p-12 mb-20 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <h2 className="text-3xl font-black uppercase italic mb-8 border-l-8 border-blue-600 pl-6">Our Verdict</h2>
+        <p className="text-lg font-medium leading-relaxed text-gray-800">
+          {m1.rating >= m2.rating
+            ? `${m1.title} (${m1.year}, ${m1.rating.toFixed(1)}/10) edges out ${m2.title} (${m2.year}, ${m2.rating.toFixed(1)}/10) in audience rating on TMDB. `
+            : `${m2.title} (${m2.year}, ${m2.rating.toFixed(1)}/10) scores higher than ${m1.title} (${m1.year}, ${m1.rating.toFixed(1)}/10) in audience rating on TMDB. `
+          }
+          {m1.runtime && m2.runtime && (
+            m1.runtime <= m2.runtime
+              ? `${m1.title} is the shorter watch at ${m1.runtime} minutes versus ${m2.runtime} minutes for ${m2.title}. `
+              : `${m2.title} is the shorter watch at ${m2.runtime} minutes versus ${m1.runtime} minutes for ${m1.title}. `
+          )}
+          {m1.streamingProviders.length > 0 && `${m1.title} is available on ${m1.streamingProviders.join(', ')}. `}
+          {m2.streamingProviders.length > 0 && `${m2.title} is available on ${m2.streamingProviders.join(', ')}.`}
+        </p>
       </section>
     </main>
   );
