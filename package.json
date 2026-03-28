@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postbuild": "node -e \"fetch('https://www.google.com/ping?sitemap=https://movies.unittap.com/sitemap.xml').catch(()=>{});fetch('https://www.bing.com/ping?sitemap=https://movies.unittap.com/sitemap.xml').catch(()=>{})\""
   },
   "dependencies": {
     "next": "16.2.1",
