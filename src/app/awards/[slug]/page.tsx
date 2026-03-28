@@ -35,8 +35,24 @@ export default async function AwardCeremonyPage({ params }: Props) {
   
   const ceremonies = await getAwardMultiCeremonyData(type, lang, country?.code || 'US');
 
+  const ceremonyDisplayName = country ?  : (type === 'oscars' ? 'Mainstream Cinema Awards' : 'Black Excellence in Cinema');
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'Awards', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 3, name: ceremonyDisplayName, item:  }
+    ]
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden">
+    <main className=min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10 font-sans selection:bg-yellow-400 selection:text-black overflow-x-hidden>
+      <script
+        type=application/ld+json
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <header className="mb-20">
         <Link href={lang === 'en-US' ? '/' : `/${lang.split('-')[0]}`} className="text-blue-600 font-black uppercase text-xs tracking-widest hover:underline mb-4 inline-block">{t.backToDiscovery}</Link>
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
