@@ -15,7 +15,105 @@ async function fetchTMDBGenres(): Promise<Array<{ id: number; name: string }>> {
     const data = await res.json();
     return data.genres || [];
   } catch {
-    return [];
+  
+  // Duration-based list pages
+  const durationUrls = ['short-movies', 'long-movies', 'perfect-length'].map(s => ({
+    url: `${baseUrl}/lists/${s}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Seasonal movie pages
+  const seasonalUrls = ['christmas', 'summer', 'halloween', 'valentines', 'thanksgiving'].map(s => ({
+    url: `${baseUrl}/lists/seasonal/${s}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Rating bracket pages
+  const ratingUrls = ['masterpieces', 'hidden-gems', 'crowd-pleasers', 'cult-classics'].map(b => ({
+    url: `${baseUrl}/lists/rated/${b}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Leaving platform soon pages
+  const leavingUrls = ['netflix', 'max', 'disney', 'hulu', 'prime', 'apple'].map(p => ({
+    url: `${baseUrl}/leaving/${p}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
+  // Country-specific trending pages
+  const trendingCountryUrls = ['us', 'gb', 'fr', 'de', 'kr', 'jp', 'in', 'br', 'es', 'it', 'mx', 'au'].map(c => ({
+    url: `${baseUrl}/trending/${c}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
+  // Year-in-review pages
+  const yearReviewUrls = ['2020', '2021', '2022', '2023', '2024', '2025'].map(y => ({
+    url: `${baseUrl}/year/${y}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Platform + Genre + Year triple combo pages
+  const tripleComboUrls = ['netflix', 'max', 'disney'].flatMap(p =>
+    ['28', '35', '18', '27', '878'].flatMap(g =>
+      ['2024', '2025', '2026'].map(y => ({
+        url: `${baseUrl}/streaming/best/${p}/${g}/${y}`,
+        lastModified: lastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      }))
+    )
+  );
+
+  // Language pages
+  const languageUrls = ['en', 'fr', 'es', 'ko', 'hi', 'ja', 'zh', 'de', 'it', 'pt'].map(l => ({
+    url: `${baseUrl}/language/${l}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Box office pages
+  const boxOfficeUrls = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'].map(y => ({
+    url: `${baseUrl}/box-office/${y}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Studio + Genre combo pages
+  const studioGenreUrls = ['2', '174', '33', '4', '34', '41077'].flatMap(s =>
+    ['28', '35', '18', '27', '878', '53', '10749', '16'].map(g => ({
+      url: `${baseUrl}/studio/${s}/genre/${g}`,
+      lastModified: lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    }))
+  );
+
+  // Multi-genre combo pages
+  const genreComboUrls = [
+    { id1: '28', id2: '35' }, { id1: '27', id2: '35' }, { id1: '878', id2: '53' },
+    { id1: '10749', id2: '35' }, { id1: '18', id2: '53' }, { id1: '28', id2: '878' },
+  ].map(({ id1, id2 }) => ({
+    url: `${baseUrl}/genre/combo/${id1}/${id2}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  return [];
   }
 }
 
@@ -206,6 +304,104 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }];
 
+
+  // Duration-based list pages
+  const durationUrls = ['short-movies', 'long-movies', 'perfect-length'].map(s => ({
+    url: `${baseUrl}/lists/${s}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Seasonal movie pages
+  const seasonalUrls = ['christmas', 'summer', 'halloween', 'valentines', 'thanksgiving'].map(s => ({
+    url: `${baseUrl}/lists/seasonal/${s}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Rating bracket pages
+  const ratingUrls = ['masterpieces', 'hidden-gems', 'crowd-pleasers', 'cult-classics'].map(b => ({
+    url: `${baseUrl}/lists/rated/${b}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Leaving platform soon pages
+  const leavingUrls = ['netflix', 'max', 'disney', 'hulu', 'prime', 'apple'].map(p => ({
+    url: `${baseUrl}/leaving/${p}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
+  // Country-specific trending pages
+  const trendingCountryUrls = ['us', 'gb', 'fr', 'de', 'kr', 'jp', 'in', 'br', 'es', 'it', 'mx', 'au'].map(c => ({
+    url: `${baseUrl}/trending/${c}`,
+    lastModified: lastModified,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
+  // Year-in-review pages
+  const yearReviewUrls = ['2020', '2021', '2022', '2023', '2024', '2025'].map(y => ({
+    url: `${baseUrl}/year/${y}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  // Platform + Genre + Year triple combo pages
+  const tripleComboUrls = ['netflix', 'max', 'disney'].flatMap(p =>
+    ['28', '35', '18', '27', '878'].flatMap(g =>
+      ['2024', '2025', '2026'].map(y => ({
+        url: `${baseUrl}/streaming/best/${p}/${g}/${y}`,
+        lastModified: lastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      }))
+    )
+  );
+
+  // Language pages
+  const languageUrls = ['en', 'fr', 'es', 'ko', 'hi', 'ja', 'zh', 'de', 'it', 'pt'].map(l => ({
+    url: `${baseUrl}/language/${l}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Box office pages
+  const boxOfficeUrls = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'].map(y => ({
+    url: `${baseUrl}/box-office/${y}`,
+    lastModified: lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Studio + Genre combo pages
+  const studioGenreUrls = ['2', '174', '33', '4', '34', '41077'].flatMap(s =>
+    ['28', '35', '18', '27', '878', '53', '10749', '16'].map(g => ({
+      url: `${baseUrl}/studio/${s}/genre/${g}`,
+      lastModified: lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    }))
+  );
+
+  // Multi-genre combo pages
+  const genreComboUrls = [
+    { id1: '28', id2: '35' }, { id1: '27', id2: '35' }, { id1: '878', id2: '53' },
+    { id1: '10749', id2: '35' }, { id1: '18', id2: '53' }, { id1: '28', id2: '878' },
+  ].map(({ id1, id2 }) => ({
+    url: `${baseUrl}/genre/combo/${id1}/${id2}`,
+    lastModified: lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
   return [
     { url: baseUrl, lastModified: lastModified, changeFrequency: 'daily', priority: 1 },
     ...homepageMovies,
@@ -223,5 +419,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...moodUrls,
     ...newOnUrls,
     ...predictionUrls,
+    ...durationUrls,
+    ...seasonalUrls,
+    ...ratingUrls,
+    ...leavingUrls,
+    ...trendingCountryUrls,
+    ...yearReviewUrls,
+    ...tripleComboUrls,
+    ...languageUrls,
+    ...boxOfficeUrls,
+    ...studioGenreUrls,
+    ...genreComboUrls,
   ];
 }
