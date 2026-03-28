@@ -72,6 +72,16 @@ export default async function MoviePage({ params }: Props) {
     }))
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'Movies', item: 'https://movies.unittap.com/genre/28' },
+      { '@type': 'ListItem', position: 3, name: details.title, item: `https://movies.unittap.com/movie/${id}` }
+    ]
+  };
+
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -141,6 +151,10 @@ export default async function MoviePage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="relative h-[50vh] md:h-[65vh] w-full shadow-inner">
         <Image src={details.image} alt={`Poster backdrop for ${details.title}`} fill className="object-cover" priority />
