@@ -104,7 +104,13 @@ export default async function MoviePage({ params }: Props) {
       availability: 'https://schema.org/OnlineOnly',
       category: 'streaming'
     },
-    ...(director ? { director: { '@type': 'Person', name: director.name } } : {})
+    ...(director ? { director: { '@type': 'Person', name: director.name } } : {}),
+    additionalProperty: [
+      ...(details.runtime ? [{ '@type': 'PropertyValue', name: 'Runtime', value: `${details.runtime} min` }] : []),
+      { '@type': 'PropertyValue', name: 'Language', value: details.genres.length > 0 ? 'English' : 'Unknown' },
+      { '@type': 'PropertyValue', name: 'Year', value: String(details.year) },
+      { '@type': 'PropertyValue', name: 'Rating', value: `${(details.rating || 0).toFixed(1)}/10` },
+    ],
   };
 
   const breadcrumbJsonLd = {
