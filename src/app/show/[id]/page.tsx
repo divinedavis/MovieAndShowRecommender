@@ -13,7 +13,7 @@ export async function generateStaticParams() {
   const API_KEY = process.env.TMDB_API_KEY;
   const pages = [1, 2, 3, 4, 5];
   const results = await Promise.all(
-    pages.map(p => fetch().then(r => r.json()))
+    pages.map(p => fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}&page=${p}`).then(r => r.json()))
   );
   const ids = results.flatMap((data: any) => data.results.map((m: any) => ({ id: String(m.id) })));
   return ids;
@@ -121,7 +121,7 @@ export default async function ShowPage({ params }: Props) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
       { '@type': 'ListItem', position: 2, name: 'Shows', item: 'https://movies.unittap.com/genre/drama' },
-      { '@type': 'ListItem', position: 3, name: details.title, item:  }
+      { '@type': 'ListItem', position: 3, name: details.title, item: `https://movies.unittap.com/show/${id}` }
     ]
   };
 

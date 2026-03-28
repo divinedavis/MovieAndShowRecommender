@@ -61,18 +61,18 @@ export default async function PersonPage({ params }: Props) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
       { '@type': 'ListItem', position: 2, name: 'People', item: 'https://movies.unittap.com' },
-      { '@type': 'ListItem', position: 3, name: details.name, item:  }
+      { '@type': 'ListItem', position: 3, name: details.name, item: `https://movies.unittap.com/person/${id}` }
     ]
   };
 
   return (
-    <main className=min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10>
+    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
       <script
-        type=application/ld+json
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <script
-        type=application/ld+json
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <header className="mb-20 flex flex-col md:flex-row gap-12 items-start">

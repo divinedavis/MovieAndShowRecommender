@@ -42,12 +42,12 @@ export default async function FranchisePage({ params }: Props) {
     name: details.name,
     description: details.description,
     image: details.image,
-    url: ,
+    url: `https://movies.unittap.com/franchise/${id}`,
     hasPart: details.parts.map((p: any) => ({
       '@type': 'Movie',
       name: p.title,
-      url: ,
-      datePublished: ,
+      url: `https://movies.unittap.com/movie/${p.id}`,
+      datePublished: `${p.year}-01-01`,
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: p.rating,
@@ -62,7 +62,7 @@ export default async function FranchisePage({ params }: Props) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
       { '@type': 'ListItem', position: 2, name: 'Franchise', item: 'https://movies.unittap.com' },
-      { '@type': 'ListItem', position: 3, name: details.name, item:  }
+      { '@type': 'ListItem', position: 3, name: details.name, item: `https://movies.unittap.com/franchise/${id}` }
     ]
   };
 

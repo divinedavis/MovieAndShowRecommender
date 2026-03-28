@@ -14,15 +14,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [id1, id2] = slug.split('-vs-');
   const [m1, m2] = await Promise.all([getMediaDetails(id1, 'movie'), getMediaDetails(id2, 'movie')]);
 
-  const compareJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: `${m1.title} vs ${m2.title} Comparison`,
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, item: { '@type': 'Movie', name: m1.title, url: `https://movies.unittap.com/movie/${id1}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m1.rating, bestRating: '10' } } },
-      { '@type': 'ListItem', position: 2, item: { '@type': 'Movie', name: m2.title, url: `https://movies.unittap.com/movie/${id2}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m2.rating, bestRating: '10' } } }
-    ]
-  };
   return {
     title: `${m1.title} vs ${m2.title} - Side-by-Side Comparison & Streaming Guide`,
     description: `Compare ${m1.title} and ${m2.title} side-by-side. See which one has better ratings, longer runtime, and where each is streaming.`
@@ -33,6 +24,16 @@ export default async function ComparePage({ params }: Props) {
   const { slug } = await params;
   const [id1, id2] = slug.split('-vs-');
   const [m1, m2] = await Promise.all([getMediaDetails(id1, 'movie'), getMediaDetails(id2, 'movie')]);
+
+  const compareJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${m1.title} vs ${m2.title} Comparison`,
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, item: { '@type': 'Movie', name: m1.title, url: `https://movies.unittap.com/movie/${id1}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m1.rating, bestRating: '10' } } },
+      { '@type': 'ListItem', position: 2, item: { '@type': 'Movie', name: m2.title, url: `https://movies.unittap.com/movie/${id2}`, aggregateRating: { '@type': 'AggregateRating', ratingValue: m2.rating, bestRating: '10' } } }
+    ]
+  };
 
   const stats = [
     { label: 'IMDB RATING', v1: m1.rating.toFixed(1), v2: m2.rating.toFixed(1) },

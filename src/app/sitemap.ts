@@ -19,7 +19,7 @@ async function fetchTMDBGenres(): Promise<Array<{ id: number; name: string }>> {
   }
 }
 
-function generateCalendarUrls(baseUrl: string): MetadataRoute.Sitemap {
+function generateCalendarUrls(baseUrl: string, lastModified: string): MetadataRoute.Sitemap {
   const urls: MetadataRoute.Sitemap = [];
   const start = new Date(2023, 0, 1); // Jan 2023
   const now = new Date();
@@ -132,7 +132,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // All calendar pages from Jan 2023 to current month
-  const calendarUrls = generateCalendarUrls(baseUrl);
+  const calendarUrls = generateCalendarUrls(baseUrl, lastModified);
 
   // Genre + Year combo URLs
   const TOP_GENRE_IDS = ['28', '35', '18', '27', '878', '53', '10749', '16'];
