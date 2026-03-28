@@ -42,6 +42,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${details.title} (${details.year}) - Watch, Stream & Reviews`,
     description: `Watch ${details.title} (${details.year}). ${details.description?.slice(0, 100)}... Available on ${details.streamingProviders?.join(', ') || 'streaming'}. Rated ${(details.rating || 0).toFixed(1)}/10.`,
+    keywords: [
+      details.title,
+      `${details.title} ${details.year}`,
+      ...details.genres.map((g: string) => `${g} show`),
+      ...details.cast.slice(0, 3).map((c: any) => c.name),
+      `${details.title} streaming`,
+      `watch ${details.title} online`,
+      `where to watch ${details.title}`,
+      `${details.title} review`,
+    ],
     alternates: {
       canonical: `${baseUrl}/show/${id}`,
       languages: {
