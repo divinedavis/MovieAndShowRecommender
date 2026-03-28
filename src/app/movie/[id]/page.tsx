@@ -259,6 +259,14 @@ export default async function MoviePage({ params }: Props) {
             </section>
           )}
 
+          {director && (
+            <section className="bg-gray-900 p-6 md:p-8 rounded-2xl border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-white">
+              <h2 className="text-xl md:text-2xl font-black mb-4 italic tracking-tight uppercase">More from {director.name}</h2>
+              <p className="text-gray-300 text-sm mb-4 font-medium">Explore more films by this director.</p>
+              <Link href={`/person/${director.id}`} className="bg-yellow-400 text-black font-black px-6 py-3 rounded-xl uppercase italic hover:bg-white transition inline-block border-2 border-black text-sm">VIEW FILMOGRAPHY →</Link>
+            </section>
+          )}
+
           {details.collection && (
             <section className="bg-blue-600 p-6 md:p-10 rounded-2xl md:rounded-3xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white">
               <h2 className="text-2xl md:text-3xl font-black mb-4 italic tracking-tight uppercase leading-tight">Part of the {details.collection.name}</h2>
