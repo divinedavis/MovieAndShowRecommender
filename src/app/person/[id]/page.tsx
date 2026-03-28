@@ -21,6 +21,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [`${details.name} movies`, `${details.name} filmography`, `${details.name} biography`, `${details.name} awards`, `${details.name} career`],
     alternates: {
       canonical: `${baseUrl}/person/${id}`,
+      languages: {
+        'en-US': `${baseUrl}/person/${id}`,
+        'fr-FR': `${baseUrl}/fr/person/${id}`,
+        'es-ES': `${baseUrl}/es/person/${id}`,
+        'ko-KR': `${baseUrl}/ko/person/${id}`,
+        'hi-IN': `${baseUrl}/hi/person/${id}`,
+      },
     },
     openGraph: { 
       title: `${details.name} | UnitTap Movies`,
