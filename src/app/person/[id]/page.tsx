@@ -53,11 +53,25 @@ export default async function PersonPage({ params }: Props) {
     sameAs: [],
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 2, name: 'People', item: 'https://movies.unittap.com' },
+      { '@type': 'ListItem', position: 3, name: details.name, item:  }
+    ]
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10">
+    <main className=min-h-screen bg-gray-50 text-gray-950 p-6 md:p-10>
       <script
-        type="application/ld+json"
+        type=application/ld+json
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type=application/ld+json
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <header className="mb-20 flex flex-col md:flex-row gap-12 items-start">
         <div className="relative aspect-[2/3] w-full md:w-[350px] flex-shrink-0 border-8 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
