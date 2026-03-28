@@ -60,7 +60,12 @@ export default async function ShowPage({ params }: Props) {
       '@type': 'Person',
       name: c.name,
       url: `https://movies.unittap.com/person/${c.id}`
-    }))
+    })),
+    offers: {
+      '@type': 'AggregateOffer',
+      availability: 'https://schema.org/OnlineOnly',
+      category: 'streaming'
+    }
   };
 
   const breadcrumbJsonLd = {
