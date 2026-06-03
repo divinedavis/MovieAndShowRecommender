@@ -10,7 +10,7 @@
     "postbuild": "node -e \"fetch('https://www.google.com/ping?sitemap=https://movies.unittap.com/sitemap.xml').catch(()=>{});fetch('https://www.bing.com/ping?sitemap=https://movies.unittap.com/sitemap.xml').catch(()=>{})\""
   },
   "dependencies": {
-    "next": "16.2.1",
+    "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
